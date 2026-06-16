@@ -6,8 +6,11 @@ console.log("DB =", process.env.DB_NAME);
 console.log("USER =", process.env.DB_USER);
 console.log("PASS =", process.env.DB_PASSWORD);
 
-const app = require("./app");
+const app = require("./app");         // ← FIRST app require
 const db = require("./config/db");
+const authRoutes = require("./routes/auth");  // ← THEN authRoutes
+
+app.use("/api/auth", authRoutes);     // ← THEN use
 
 const PORT = process.env.PORT || 5000;
 

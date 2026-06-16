@@ -48,19 +48,22 @@ const customerRepository = {
   // Create new customer
   create: async (data) => {
     const {
-      customer_id, name, email, phone, company,
-      type, status, address, city, state,
-      pincode, gstin, notes
-    } = data;
+  customer_id, name, email, phone, company,
+  service_type,
+  type, status, address, city, state,
+  pincode, gstin, notes
+} = data;
 
     const result = await pool.query(
       `INSERT INTO customers 
-        (customer_id, name, email, phone, company, type, status, 
-         address, city, state, pincode, gstin, notes)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-       RETURNING *`,
-      [customer_id, name, email, phone, company, type, status,
-       address, city, state, pincode, gstin, notes]
+(customer_id, name, email, phone, company, service_type, type, status, 
+ address, city, state, pincode, gstin, notes)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+RETURNING *`,
+      [
+  customer_id, name, email, phone, company, service_type, type, status,
+  address, city, state, pincode, gstin, notes
+]
     );
     return result.rows[0];
   },
@@ -86,11 +89,11 @@ const customerRepository = {
 
   // Delete customer
   delete: async (id) => {
-    const result = await pool.query(
-      'DELETE FROM customers WHERE id = $1 RETURNING *', [id]
-    );
-    return result.rows[0];
-  },
+  const result = await pool.query(
+    'DELETE FROM customers WHERE id = $1 RETURNING *', [id]
+  );
+  return result.rows[0];
+},
 
   // Get stats for top cards
   getStats: async () => {

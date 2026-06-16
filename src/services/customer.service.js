@@ -17,8 +17,13 @@ const customerService = {
 
   createCustomer: async (data) => {
     // Check duplicate email
-    const existing = await customerRepository.getAll({ search: data.email });
-    const emailExists = existing.customers?.find(c => c.email === data.email);
+    const existing = await customerRepository.getAll({
+  search: data.email
+});
+
+const emailExists = existing.find(
+  c => c.email === data.email
+);
     if (emailExists) throw new Error('Email already exists');
 
     // Auto-generate customer_id
