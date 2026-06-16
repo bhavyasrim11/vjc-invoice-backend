@@ -12,7 +12,11 @@ const { createExpenseTable }          = require('./models/expense.model');
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://vjc-invoice-frontend.vercel.app'
+  ],
   credentials: true,
 }));
 app.use(express.json());
