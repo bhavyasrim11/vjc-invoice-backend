@@ -46,7 +46,7 @@ const timeTrackingController = {
   convertToInvoice: async (req, res) => {
     try {
       const invoice = await service.convertToInvoice(req.params.id);
-      res.json({ success: true, invoice, message: 'Invoice created! Chairman కి mail పంపబడింది.' });
+      res.json({ success: true, invoice, message: 'Invoice created! Chairman approval email sent.' });
     } catch (err) {
       res.status(400).json({ success: false, message: err.message });
     }
