@@ -37,7 +37,7 @@ const invoiceService = {
         outstanding = outstanding + $1,
         last_transaction = NOW()
        WHERE id = $2`,
-      [approved.total_amount, approved.customer_id]
+     [approved.balance_amount, approved.customer_id]
     );
 
     // Client కి mail పంపు
