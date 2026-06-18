@@ -4,7 +4,21 @@ const customerRepository = {
 
   // Get all customers with filters
   getAll: async ({ search, status, type }) => {
-    let query = `SELECT * FROM customers WHERE 1=1`;
+    let query = `
+SELECT
+  c.*,
+  COALESCE(i.status,'Pending') AS invoice_status
+FROM customers c
+LEFT JOIN (
+  SELECT DISTINCT ON (customer_id)
+    customer_id,
+    status
+  FROM invoices
+  ORDER BY customer_id, id DESC
+) i
+ON c.id = i.customer_id
+WHERE 1=1
+`;
     const values = [];
     let i = 1;
 
