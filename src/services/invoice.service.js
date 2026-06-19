@@ -32,16 +32,48 @@ const invoiceService = {
     const approved = await invoiceRepository.approve(token);
 
     // ✅ Customer outstanding update చేయి
-    await pool.query(
-      `UPDATE customers SET
-        outstanding = outstanding + $1,
-        last_transaction = NOW()
-       WHERE id = $2`,
-     [approved.balance_amount, approved.customer_id]
-    );
+   await pool.query(
+  `UPDATE customers SET
+    outstanding = outstanding + $1,
+    total_payments = total_payments + $2,
+    last_transaction = NOW()
+   WHERE id = $3`,
+ [
+   approved.balance_amount || 0,
+   approved.paid_amount || 0,
+   approved.customer_id
+ ]
+);
+
+    // ── Customer mail కి కావాల్సిన full details fetch చేయి (Bill To section) ──
+    // approved.customer_id ఇక్కడ customers.id (numeric FK), display Client ID కాదు
+    let customerDetails = {};
+    try {
+      const custRes = await pool.query(
+        `SELECT customer_id, phone, address, city, state, gstin, country
+         FROM customers WHERE id = $1`,
+        [approved.customer_id]
+      );
+      if (custRes.rows.length > 0) {
+        customerDetails = custRes.rows[0];
+      }
+    } catch (err) {
+      console.log('⚠️ Could not fetch customer details for mail:', err.message);
+    }
+
+    const mailPayload = {
+      ...approved,
+      customer_id: customerDetails.customer_id || approved.customer_id,
+      customer_phone: customerDetails.phone || approved.customer_phone,
+      customer_address: customerDetails.address
+        ? `${customerDetails.address}${customerDetails.city ? ', ' + customerDetails.city : ''}${customerDetails.state ? ', ' + customerDetails.state : ''}`
+        : approved.customer_address,
+      customer_gstin: customerDetails.gstin || approved.customer_gstin,
+      customer_country: customerDetails.country || approved.customer_country || 'India',
+    };
 
     // Client కి mail పంపు
-    await emailService.sendClientInvoiceMail(approved);
+    await emailService.sendClientInvoiceMail(mailPayload);
     return approved;
   },
 

@@ -19,32 +19,39 @@ const invoiceRepository = {
 
   create: async (data) => {
     const {
-  invoice_number,
-  customer_id,
-  customer_name,
-  customer_email,
-  items,
-  subtotal,
-  tax_percent,
-  tax_amount,
-  total_amount,
-
-  grand_total,
-  paid_amount,
-  balance_amount,
-
-  due_date,
-  notes,
-  chairman_token
-} = data;
+      invoice_number,
+      customer_id,
+      customer_name,
+      customer_email,
+      items,
+      invoice_type,
+      currency,
+      invoice_date,
+      payment_mode,
+      reference_no,
+      subtotal,
+      tax_percent,
+      tax_amount,
+      total_amount,
+      discount,
+      grand_total,
+      paid_amount,
+      balance_amount,
+      due_date,
+      service_type,
+      state_by,
+      notes,
+      chairman_token
+    } = data;
 
     const result = await pool.query(
       `INSERT INTO invoices
   (invoice_number, customer_id, customer_name, customer_email,
-   items, subtotal, tax_percent, tax_amount, total_amount,
+   items, invoice_type, currency, invoice_date, payment_mode, reference_no,
+   subtotal, tax_percent, tax_amount, total_amount, discount,
    grand_total, paid_amount, balance_amount,
-   due_date, notes, chairman_token, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'Pending')
+   due_date, service_type, state_by, notes, chairman_token, status)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,'Pending')
        RETURNING *`,
      [
   invoice_number,
@@ -52,16 +59,22 @@ const invoiceRepository = {
   customer_name,
   customer_email,
   JSON.stringify(items),
+  invoice_type,
+  currency,
+  invoice_date,
+  payment_mode,
+  reference_no,
   subtotal,
   tax_percent,
   tax_amount,
   total_amount,
-
+  discount,
   grand_total,
   paid_amount,
   balance_amount,
-
   due_date,
+  service_type,
+  state_by,
   notes,
   chairman_token
 ]

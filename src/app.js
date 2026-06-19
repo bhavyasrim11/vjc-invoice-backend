@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const routes = require('./routes/index');
@@ -15,6 +16,10 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
+
+// Serve files inside /public (e.g. logo.png) as static assets
+// Accessible at: https://<your-backend-domain>/public/logo.png
+app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/api', routes);
 app.use('/api/auth', authRoutes);
