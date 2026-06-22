@@ -3,6 +3,7 @@
 // ============================================================
 
 const repo = require("../repositories/payment.repository");
+const emailService = require("../services/email.service");
 
 // GET /api/payments
 const getAll = async (req, res) => {
@@ -42,6 +43,18 @@ const remind = async (req, res) => {
   try {
     const { newStage, method, note } = req.body;
     const data = await repo.sendReminder(req.params.id, newStage, method, note);
+
+    // 🔔 send actual email to customer, if they have an email on file
+    if (data?.email) {
+      try {
+        await emailService.sendPaymentReminderMail(data, newStage, note);
+      } catch (mailErr) {
+        console.error("PAYMENT REMINDER MAIL ERROR:", mailErr.message);
+      }
+    } else {
+      console.warn("⚠️ Reminder mail skipped — no email on payment id:", req.params.id);
+    }
+
     res.json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });

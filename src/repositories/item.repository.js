@@ -77,14 +77,23 @@ const itemRepository = {
   },
 
   getStats: async () => {
-    const result = await pool.query(`
+    const itemResult = await pool.query(`
       SELECT
         COUNT(*) as total_items,
-        COUNT(CASE WHEN status='Active' THEN 1 END) as active_items,
-        SUM(price) as total_revenue
+        COUNT(CASE WHEN status='Active' THEN 1 END) as active_items
       FROM items
     `);
-    return result.rows[0];
+
+    const revenueResult = await pool.query(`
+      SELECT COALESCE(SUM(grand_total), 0) as total_revenue
+      FROM invoices
+      WHERE status = 'Approved'
+    `);
+
+    return {
+      ...itemResult.rows[0],
+      total_revenue: revenueResult.rows[0].total_revenue,
+    };
   },
 };
 

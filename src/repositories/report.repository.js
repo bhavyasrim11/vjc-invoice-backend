@@ -4,15 +4,17 @@ const pool = require('../config/db');
 const salesByCustomer = async () => {
   const result = await pool.query(`
     SELECT
-      si.customer_id,
-      si.customer_name AS customer,
-      COUNT(*) AS invoices,
-      COALESCE(SUM(si.total_amount), 0) AS amount,
-      COALESCE(SUM(CASE WHEN si.status = 'Paid' THEN si.total_amount ELSE 0 END), 0) AS paid
-    FROM sales_invoices si
-    GROUP BY si.customer_id, si.customer_name
+      i.customer_name AS customer,
+      COUNT(i.id) AS invoices,
+      COALESCE(SUM(i.total_amount), 0) AS amount,
+      COALESCE(SUM(p.amount_received), 0) AS paid
+    FROM invoices i
+    LEFT JOIN payments p
+      ON p.customer_name = i.customer_name
+    GROUP BY i.customer_name
     ORDER BY amount DESC
   `);
+
   return result.rows.map(r => ({
     customer: r.customer,
     invoices: Number(r.invoices),
@@ -26,37 +28,55 @@ const salesByCustomer = async () => {
 const salesByItem = async () => {
   const result = await pool.query(`
     SELECT
-      item->>'description' AS item,
-      SUM((item->>'qty')::numeric) AS qty,
-      SUM((item->>'qty')::numeric * (item->>'rate')::numeric) AS amount
-    FROM sales_invoices si,
-      jsonb_array_elements(si.line_items) AS item
-    WHERE si.line_items IS NOT NULL AND jsonb_array_length(si.line_items) > 0
-    GROUP BY item->>'description'
+      CASE
+        WHEN items->0->>'description' IS NULL
+             OR TRIM(items->0->>'description') = ''
+        THEN 'Visa Service'
+        ELSE items->0->>'description'
+      END AS item,
+      COUNT(*) AS qty,
+      COALESCE(SUM(total_amount), 0) AS amount
+    FROM invoices
+    GROUP BY item
     ORDER BY amount DESC
   `);
+
   return result.rows.map(r => ({
     item: r.item,
     qty: Number(r.qty),
     amount: Number(r.amount),
-    avgPrice: Number(r.qty) > 0 ? Math.round(Number(r.amount) / Number(r.qty)) : 0,
+    avgPrice:
+      Number(r.qty) > 0
+        ? Math.round(Number(r.amount) / Number(r.qty))
+        : 0,
   }));
 };
 
 // 3. Invoice Details
 const invoiceDetails = async () => {
   const result = await pool.query(`
-    SELECT invoice_id, customer_name, invoice_date, due_date, total_amount, status
-    FROM sales_invoices
-    ORDER BY invoice_date DESC
+    SELECT
+      invoice_number,
+      customer_name,
+      invoice_date,
+      due_date,
+      total_amount,
+      status
+    FROM invoices
+    ORDER BY created_at DESC
   `);
+
   return result.rows.map(r => ({
-    invoiceNo: r.invoice_id,
+    invoiceNo: r.invoice_number,
     customer: r.customer_name,
-    date: r.invoice_date ? r.invoice_date.toISOString().slice(0, 10) : '',
-    dueDate: r.due_date ? r.due_date.toISOString().slice(0, 10) : '',
-    amount: Number(r.total_amount),
-    status: r.status,
+    date: r.invoice_date
+      ? new Date(r.invoice_date).toISOString().slice(0, 10)
+      : '',
+    dueDate: r.due_date
+      ? new Date(r.due_date).toISOString().slice(0, 10)
+      : '',
+    amount: Number(r.total_amount || 0),
+    status: r.status || '',
   }));
 };
 

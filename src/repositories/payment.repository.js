@@ -77,9 +77,10 @@ const recordPayment = async (id, data) => {
   const { paymentDate, paymentMethod, amountReceived, reference, notes } = data;
 
   const cur = await pool.query(
-    "SELECT amount_due FROM payments WHERE id=$1", [id]
+    "SELECT amount_due, invoice_id FROM payments WHERE id=$1", [id]
   );
   const amountDue = Number(cur.rows[0]?.amount_due || 0);
+  const invoiceId = cur.rows[0]?.invoice_id;
   const received  = Number(amountReceived);
   const newStatus = received >= amountDue ? "Paid"
                   : received > 0          ? "Partially Paid"
@@ -94,9 +95,19 @@ const recordPayment = async (id, data) => {
     [received, paymentMethod, reference || "",
      paymentDate || null, notes || "", newStatus, id]
   );
+
+  // 🔗 keep the linked invoice in sync when fully paid
+  if (newStatus === "Paid" && invoiceId) {
+    const invoiceRepo = require('./invoice.repository');
+    try {
+      await invoiceRepo.markPaidByInvoiceNumber(invoiceId);
+    } catch (err) {
+      console.error('Invoice sync error:', err.message);
+    }
+  }
+
   return result.rows[0];
 };
-
 // ── Void ──────────────────────────────────────────────────────
 const voidPayment = async (id) => {
   const result = await pool.query(

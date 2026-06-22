@@ -33,37 +33,31 @@ const createQuote = async (data) => {
 
   const result = await pool.query(
     `INSERT INTO quotes
-    (
-      quote_id,
-      customer_id,
-      customer_name,
-      customer_email,
-      salesperson,
-      quote_date,
-      expiry_date,
-      subtotal,
-      gst,
-      total_amount,
-      status,
-      notes
-    )
+(
+  quote_id,
+  customer_id,
+  customer_name,
+  salesperson,
+  quote_date,
+  expiry_date,
+  total_amount,
+  status,
+  notes
+)
     VALUES
-    ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+($1,$2,$3,$4,$5,$6,$7,$8,$9)
     RETURNING *`,
-    [
-      quote_id,
-      customer_id,
-      customer_name,
-      customer_email || null,
-      salesperson || null,
-      quote_date,
-      expiry_date,
-      subtotal || 0,
-      gst || 0,
-      total_amount || 0,
-      status || 'Draft',
-      notes || null
-    ]
+   [
+  quote_id,
+  customer_id,
+  customer_name,
+  salesperson || null,
+  quote_date,
+  expiry_date,
+  total_amount || 0,
+  status || 'Draft',
+  notes || null
+]
   );
 
   return result.rows[0];

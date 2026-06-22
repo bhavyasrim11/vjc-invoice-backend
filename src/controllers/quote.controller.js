@@ -1,6 +1,36 @@
 const quoteRepo = require('../repositories/quote.repository');
+const customerRepository = require('../repositories/customer.repository');
+const emailService = require('../services/email.service');
 const { generateQuoteId } = require('../models/quote');
 
+// ── Helper: send mail to customer if quote status is "Sent" ──
+const sendQuoteMailIfNeeded = async (quote) => {
+  try {
+    if (!quote || quote.status !== 'Sent') return;
+
+    // quote.customer_id is the CUS00X string — look that up first
+    let customer = await customerRepository.getByCustomerId(quote.customer_id);
+    if (!customer) {
+      customer = await customerRepository.getById(quote.customer_id);
+    }
+
+    if (!customer || !customer.email) {
+      console.warn(
+        '⚠️ Quote mail skipped — no customer/email found for customer_id:',
+        quote.customer_id
+      );
+      return;
+    }
+
+    await emailService.sendQuoteToCustomerMail({
+      ...quote,
+      customer_email: customer.email,
+      customer_name: quote.customer_name || customer.name,
+    });
+  } catch (err) {
+    console.error('QUOTE MAIL ERROR:', err.message);
+  }
+};
 // GET all quotes
 const getQuotes = async (req, res) => {
   try {
@@ -42,12 +72,20 @@ const createQuote = async (req, res) => {
     console.log("GENERATED QUOTE ID:", quote_id);
 
     const quote = await quoteRepo.createQuote({
-      ...req.body,
-      quote_id
-    });
+  ...req.body,
+  quote_id
+});
 
-    console.log("QUOTE SAVED SUCCESSFULLY");
-    console.log(quote);
+console.log("QUOTE SAVED SUCCESSFULLY");
+console.log(quote);
+
+// 🔔 send mail to customer if quote was saved as "Sent"
+// (line_items aren't persisted on the quotes table, so pass the
+//  original request items along for the email breakdown)
+await sendQuoteMailIfNeeded({
+  ...quote,
+  line_items: req.body.line_items || [],
+});
 
     res.status(201).json({
       success: true,
@@ -81,6 +119,9 @@ const updateQuote = async (req, res) => {
           .json({ success: false, message: 'Quote not found' });
       }
 
+      // 🔔 send mail to customer if status was changed to "Sent"
+      await sendQuoteMailIfNeeded(quote);
+
       return res.json({
         success: true,
         data: quote
@@ -97,6 +138,9 @@ const updateQuote = async (req, res) => {
         .status(404)
         .json({ success: false, message: 'Quote not found' });
     }
+
+    // 🔔 send mail to customer if quote was updated to "Sent"
+    await sendQuoteMailIfNeeded(quote);
 
     res.json({
       success: true,
@@ -123,6 +167,9 @@ const updateQuoteStatus = async (req, res) => {
         .status(404)
         .json({ success: false, message: 'Quote not found' });
     }
+
+    // 🔔 send mail to customer if status was changed to "Sent"
+    await sendQuoteMailIfNeeded(quote);
 
     res.json({
       success: true,

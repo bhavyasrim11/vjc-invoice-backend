@@ -107,6 +107,17 @@ const invoiceRepository = {
     return result.rows[0];
   },
 
+  markPaidByInvoiceNumber: async (invoiceNumber) => {
+    const result = await pool.query(
+      `UPDATE invoices
+       SET status='Paid', updated_at=NOW()
+       WHERE invoice_number=$1
+       RETURNING *`,
+      [invoiceNumber]
+    );
+    return result.rows[0];
+  },
+
   getStats: async () => {
     const result = await pool.query(`
       SELECT

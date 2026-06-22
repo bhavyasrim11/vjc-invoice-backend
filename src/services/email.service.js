@@ -310,6 +310,242 @@ const emailService = {
     });
     console.log('✅ Client mail sent!');
   },
+
+  // ─── NEW: Quote → Customer mail ───────────────────────────────
+  sendQuoteToCustomerMail: async (quote) => {
+    const totalAmount = Number(quote.total_amount || 0);
+
+    const html = `
+<div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
+  <div style="max-width:600px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;">
+
+    <div style="background:#1976d2;padding:24px 28px;">
+      <div style="font-size:20px;font-weight:800;color:#fff;">VJC OVERSEAS</div>
+      <div style="font-size:11px;color:#cfe3fb;letter-spacing:1px;margin-top:2px;">
+        IMMIGRATION &amp; VISA CONSULTANTS
+      </div>
+    </div>
+
+    <div style="padding:28px;">
+      <div style="font-size:16px;color:#222;margin-bottom:4px;">
+        Hi ${quote.customer_name || 'Customer'},
+      </div>
+      <div style="font-size:13.5px;color:#555;line-height:1.6;margin-bottom:20px;">
+        Thank you for your interest in our services. Please find your quote details below.
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;color:#333;margin-bottom:18px;">
+        <tr>
+          <td style="padding:8px 10px;font-weight:700;">Quote Number</td>
+          <td style="padding:8px 10px;text-align:right;">${quote.quote_number || quote.quote_id || '-'}</td>
+        </tr>
+        <tr style="background:#f8f9fa;">
+          <td style="padding:8px 10px;font-weight:700;">Quote Date</td>
+          <td style="padding:8px 10px;text-align:right;">${quote.quote_date || '-'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px;font-weight:700;">Valid Until</td>
+          <td style="padding:8px 10px;text-align:right;color:#d32f2f;font-weight:700;">
+            ${quote.expiry_date || '-'}
+          </td>
+        </tr>
+        ${quote.salesperson ? `
+        <tr style="background:#f8f9fa;">
+          <td style="padding:8px 10px;font-weight:700;">Salesperson</td>
+          <td style="padding:8px 10px;text-align:right;">${quote.salesperson}</td>
+        </tr>` : ''}
+      </table>
+
+      ${(() => {
+        const items = quote.line_items || [];
+        if (!items.length) return '';
+
+        let subTotal = 0, totalGST = 0;
+
+        const rows = items.map((li) => {
+          const qty      = Number(li.qty || 1);
+          const rate     = Number(li.rate || 0);
+          const discount = Number(li.discount || 0);
+          const gstPct   = Number(li.gst || 0);
+
+          const base    = qty * rate;
+          const discAmt = base * (discount / 100);
+          const taxable = base - discAmt;
+          const gstAmt  = taxable * (gstPct / 100);
+          const lineTotal = taxable + gstAmt;
+
+          subTotal += taxable;
+          totalGST += gstAmt;
+
+          return `
+            <tr>
+              <td style="padding:8px 10px;border-bottom:1px solid #eee;">${li.description || '-'}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:center;">${qty}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right;">₹${rate.toLocaleString('en-IN')}</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:center;">${gstPct}%</td>
+              <td style="padding:8px 10px;border-bottom:1px solid #eee;text-align:right;font-weight:600;">₹${lineTotal.toLocaleString('en-IN')}</td>
+            </tr>`;
+        }).join('');
+
+        return `
+        <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:8px;">Service Details</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#333;margin-bottom:16px;">
+          <thead>
+            <tr style="background:#f0f4f8;">
+              <th style="padding:8px 10px;text-align:left;">Service</th>
+              <th style="padding:8px 10px;text-align:center;">Qty</th>
+              <th style="padding:8px 10px;text-align:right;">Rate</th>
+              <th style="padding:8px 10px;text-align:center;">GST %</th>
+              <th style="padding:8px 10px;text-align:right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#333;margin-bottom:16px;">
+          <tr>
+            <td style="padding:3px 10px;">Sub Total</td>
+            <td style="padding:3px 10px;text-align:right;">₹${subTotal.toLocaleString('en-IN')}</td>
+          </tr>
+          <tr>
+            <td style="padding:3px 10px;">GST</td>
+            <td style="padding:3px 10px;text-align:right;">₹${totalGST.toLocaleString('en-IN')}</td>
+          </tr>
+        </table>`;
+      })()}
+
+      <div style="background:#f0f7ff;border-radius:6px;padding:18px 20px;text-align:right;margin-bottom:20px;">
+        <div style="font-size:12px;color:#555;">Total Quote Amount</div>
+        <div style="font-size:24px;font-weight:800;color:#1565c0;">
+          ₹${totalAmount.toLocaleString('en-IN')}
+        </div>
+      </div>
+
+      ${quote.notes ? `
+      <div style="font-size:12.5px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:14px;">
+        ${quote.notes}
+      </div>` : ''}
+
+      <div style="font-size:12.5px;color:#777;margin-top:22px;line-height:1.6;">
+        Please reply to this email if you'd like to proceed or have any questions.
+        We look forward to working with you.
+      </div>
+    </div>
+
+    <div style="background:#111;color:#ddd;text-align:center;font-size:11px;padding:13px 18px;">
+      VJC Immigration And Visa Consultants Pvt. Ltd., - Raheja Arcade, 16 &amp; 17, 5th Block,
+      Koramangala, Bengaluru, Karnataka 560095
+    </div>
+  </div>
+</div>
+    `;
+
+   await transporter.sendMail({
+      from: `"VJC Overseas" <${process.env.EMAIL_USER}>`,
+      to: quote.customer_email,
+      subject: `Quote ${quote.quote_number || quote.quote_id} from VJC Overseas - ₹${totalAmount.toLocaleString('en-IN')}`,
+      html,
+    });
+    console.log('✅ Quote mail sent to customer!');
+  },
+
+  // ─── NEW: Payment → Customer reminder mail ───────────────────────
+  sendPaymentReminderMail: async (payment, stage, note) => {
+    const amountDue      = Number(payment.amount_due || 0);
+    const amountReceived = Number(payment.amount_received || 0);
+    const balance         = amountDue - amountReceived;
+
+    const stageColor = stage === 'Overdue' ? '#d32f2f' : '#ed6c02';
+    const stageLabel  = stage === 'Overdue' ? '⚠️ Payment Overdue' : `🔔 ${stage}`;
+
+    const html = `
+<div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
+  <div style="max-width:600px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;">
+
+    <div style="background:${stageColor};padding:24px 28px;">
+      <div style="font-size:20px;font-weight:800;color:#fff;">VJC OVERSEAS</div>
+      <div style="font-size:11px;color:#fde8e8;letter-spacing:1px;margin-top:2px;">
+        IMMIGRATION &amp; VISA CONSULTANTS
+      </div>
+    </div>
+
+    <div style="padding:28px;">
+      <div style="display:inline-block;background:${stageColor};color:#fff;font-size:11px;
+        font-weight:700;letter-spacing:0.5px;padding:4px 10px;border-radius:3px;margin-bottom:14px;">
+        ${stageLabel}
+      </div>
+
+      <div style="font-size:16px;color:#222;margin-bottom:4px;">
+        Hi ${payment.customer_name || 'Customer'},
+      </div>
+      <div style="font-size:13.5px;color:#555;line-height:1.6;margin-bottom:20px;">
+        This is a reminder that payment for the invoice below is still pending.
+        Please make the payment at the earliest to avoid any service delays.
+      </div>
+
+      <table style="width:100%;border-collapse:collapse;font-size:13px;color:#333;margin-bottom:18px;">
+        <tr>
+          <td style="padding:8px 10px;font-weight:700;">Payment Reference</td>
+          <td style="padding:8px 10px;text-align:right;">${payment.payment_no || '-'}</td>
+        </tr>
+        <tr style="background:#f8f9fa;">
+          <td style="padding:8px 10px;font-weight:700;">Invoice #</td>
+          <td style="padding:8px 10px;text-align:right;">${payment.invoice_id || 'MANUAL'}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 10px;font-weight:700;">Due Date</td>
+          <td style="padding:8px 10px;text-align:right;color:#d32f2f;font-weight:700;">
+            ${payment.due_date ? String(payment.due_date).slice(0, 10) : '-'}
+          </td>
+        </tr>
+      </table>
+
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#333;margin-bottom:16px;">
+        <tr>
+          <td style="padding:3px 10px;">Amount Due</td>
+          <td style="padding:3px 10px;text-align:right;">₹${amountDue.toLocaleString('en-IN')}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 10px;">Amount Received</td>
+          <td style="padding:3px 10px;text-align:right;">₹${amountReceived.toLocaleString('en-IN')}</td>
+        </tr>
+      </table>
+
+      <div style="background:#fff3f0;border-radius:6px;padding:18px 20px;text-align:right;margin-bottom:20px;">
+        <div style="font-size:12px;color:#555;">Balance Due</div>
+        <div style="font-size:24px;font-weight:800;color:${stageColor};">
+          ₹${balance.toLocaleString('en-IN')}
+        </div>
+      </div>
+
+      ${note ? `
+      <div style="font-size:12.5px;color:#555;line-height:1.6;border-top:1px solid #eee;padding-top:14px;">
+        ${note}
+      </div>` : ''}
+
+      <div style="font-size:12.5px;color:#777;margin-top:22px;line-height:1.6;">
+        If you've already made this payment, please disregard this email or share the
+        payment reference with us so we can update our records.
+      </div>
+    </div>
+
+    <div style="background:#111;color:#ddd;text-align:center;font-size:11px;padding:13px 18px;">
+      VJC Immigration And Visa Consultants Pvt. Ltd., - Raheja Arcade, 16 &amp; 17, 5th Block,
+      Koramangala, Bengaluru, Karnataka 560095
+    </div>
+  </div>
+</div>
+    `;
+
+    await transporter.sendMail({
+      from: `"VJC Overseas" <${process.env.EMAIL_USER}>`,
+      to: payment.email,
+      subject: `${stageLabel} — Payment Due ₹${balance.toLocaleString('en-IN')} (${payment.payment_no || ''})`,
+      html,
+    });
+    console.log('✅ Payment reminder mail sent to customer!');
+  },
 };
 
 module.exports = emailService;
