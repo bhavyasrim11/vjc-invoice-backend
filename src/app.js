@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const routes = require('./routes/index');
 const authRoutes = require('./routes/auth');
+const pool = require('./config/db');
 
 const { createPaymentTable } = require('./models/payment.model');
 const { createRecurringInvoiceTable } = require('./models/recurringInvoice.model');
@@ -12,17 +13,14 @@ const { createExpenseTable } = require('./models/expense.model');
 
 const app = express();
 
-// TEMPORARY CORS TEST
 app.use(cors());
-
 app.use(express.json());
 
-// Serve files inside /public (e.g. logo.png) as static assets
-// Accessible at: https://<your-backend-domain>/public/logo.png
+// Serve static files
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/api', routes);
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes(pool)); // ← pass pool here ✅
 
 app.get('/', (req, res) => {
   res.json({ message: 'VJC Invoice API Running!' });

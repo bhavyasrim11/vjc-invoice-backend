@@ -3,7 +3,7 @@ const pool = require('../config/db');
 const customerRepository = {
 
   // Get all customers with filters
-  getAll: async ({ search, status, type }) => {
+  getAll: async ({ search, status, type, userId, role }) => {
     let query = `
 SELECT
   c.*,
