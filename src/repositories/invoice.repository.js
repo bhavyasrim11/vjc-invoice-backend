@@ -2,10 +2,15 @@ const pool = require('../config/db');
 
 const invoiceRepository = {
 
-  getAll: async () => {
-    const result = await pool.query(
-      'SELECT * FROM invoices ORDER BY created_at DESC'
-    );
+  getAll: async ({ role, userId } = {}) => {
+    let query = 'SELECT * FROM invoices';
+    const vals = [];
+    if (role !== 'chairman' && userId) {
+      query += ' WHERE created_by = $1';
+      vals.push(userId);
+    }
+    query += ' ORDER BY created_at DESC';
+    const result = await pool.query(query, vals);
     return result.rows;
   },
 
@@ -45,38 +50,21 @@ const invoiceRepository = {
     } = data;
 
     const result = await pool.query(
-      `INSERT INTO invoices
+   `INSERT INTO invoices
   (invoice_number, customer_id, customer_name, customer_email,
    items, invoice_type, currency, invoice_date, payment_mode, reference_no,
    subtotal, tax_percent, tax_amount, total_amount, discount,
    grand_total, paid_amount, balance_amount,
-   due_date, service_type, state_by, notes, chairman_token, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,'Pending')
+   due_date, service_type, state_by, notes, chairman_token, status, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,'Pending',$24)
        RETURNING *`,
      [
-  invoice_number,
-  customer_id,
-  customer_name,
-  customer_email,
-  JSON.stringify(items),
-  invoice_type,
-  currency,
-  invoice_date,
-  payment_mode,
-  reference_no,
-  subtotal,
-  tax_percent,
-  tax_amount,
-  total_amount,
-  discount,
-  grand_total,
-  paid_amount,
-  balance_amount,
-  due_date,
-  service_type,
-  state_by,
-  notes,
-  chairman_token
+  invoice_number, customer_id, customer_name, customer_email,
+  JSON.stringify(items), invoice_type, currency, invoice_date, payment_mode, reference_no,
+  subtotal, tax_percent, tax_amount, total_amount, discount,
+  grand_total, paid_amount, balance_amount,
+  due_date, service_type, state_by, notes, chairman_token,
+  data.created_by || null
 ]
     );
 

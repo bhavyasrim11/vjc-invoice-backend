@@ -5,7 +5,9 @@ const itemController = {
   getAll: async (req, res) => {
     try {
       const { search, status, category } = req.query;
-      const data = await itemService.getAllItems({ search, status, category });
+      const role   = req.user?.role;
+      const userId = req.user?.id;
+      const data = await itemService.getAllItems({ search, status, category, role, userId });
       res.json({ success: true, ...data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
@@ -20,16 +22,17 @@ const itemController = {
       res.status(404).json({ success: false, message: err.message });
     }
   },
-
-  create: async (req, res) => {
+create: async (req, res) => {
     try {
-      const item = await itemService.createItem(req.body);
-      res.status(201).json({ success: true, item });
+      const item = await itemService.createItem({
+        ...req.body,
+        created_by: req.user?.id,
+      });
+      res.json({ success: true, item });  // ✅ ఈ line missing ఉంది!
     } catch (err) {
       res.status(400).json({ success: false, message: err.message });
     }
   },
-
   update: async (req, res) => {
     try {
       const item = await itemService.updateItem(req.params.id, req.body);

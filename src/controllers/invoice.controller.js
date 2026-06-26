@@ -4,16 +4,21 @@ const invoiceController = {
 
   getAll: async (req, res) => {
     try {
-      const data = await invoiceService.getAllInvoices();
+      const role   = req.user?.role;
+      const userId = req.user?.id;
+      const data = await invoiceService.getAllInvoices({ role, userId });
       res.json({ success: true, ...data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
   },
 
-  create: async (req, res) => {
+ create: async (req, res) => {
     try {
-      const invoice = await invoiceService.createInvoice(req.body);
+      const invoice = await invoiceService.createInvoice({
+        ...req.body,
+        created_by: req.user?.id,        // ← ADD
+      });
       res.status(201).json({ success: true, invoice });
     } catch (err) {
       res.status(400).json({ success: false, message: err.message });

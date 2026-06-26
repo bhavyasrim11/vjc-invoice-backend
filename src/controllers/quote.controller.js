@@ -34,7 +34,9 @@ const sendQuoteMailIfNeeded = async (quote) => {
 // GET all quotes
 const getQuotes = async (req, res) => {
   try {
-    const quotes = await quoteRepo.getAllQuotes();
+    const role   = req.user?.role;
+    const userId = req.user?.id;
+    const quotes = await quoteRepo.getAllQuotes({ role, userId });
     res.json({ success: true, data: quotes });
   } catch (err) {
     console.error("GET QUOTES ERROR:", err);
@@ -71,9 +73,10 @@ const createQuote = async (req, res) => {
 
     console.log("GENERATED QUOTE ID:", quote_id);
 
-    const quote = await quoteRepo.createQuote({
+   const quote = await quoteRepo.createQuote({
   ...req.body,
-  quote_id
+  quote_id,
+  created_by: req.user?.id,        // ← ADD
 });
 
 console.log("QUOTE SAVED SUCCESSFULLY");

@@ -19,6 +19,10 @@ LEFT JOIN (
 ON c.id = i.customer_id
 WHERE 1=1
 `;
+    // chairman = all data, employee = only own
+    if (role !== 'chairman' && userId) {
+      query += ` AND c.created_by = '${userId}'`;
+    }
     const values = [];
     let i = 1;
 
@@ -65,20 +69,20 @@ WHERE 1=1
   customer_id, name, email, phone, company,
   service_type, service_id,
   type, status, address, city, state,
-  pincode, gstin, notes
+  pincode, gstin, notes, created_by
 } = data;
 
     const result = await pool.query(
       `INSERT INTO customers
 (customer_id, name, email, phone, company, service_type, service_id, type, status,
- address, city, state, pincode, gstin, notes)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+ address, city, state, pincode, gstin, notes, created_by)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
 RETURNING *`,
      [
   customer_id, name, email, phone, company,
   service_type, service_id,
   type, status,
-  address, city, state, pincode, gstin, notes
+  address, city, state, pincode, gstin, notes, created_by || null
 ]
     );
     return result.rows[0];
@@ -112,15 +116,21 @@ RETURNING *`,
 },
 
   // Get stats for top cards
-  getStats: async () => {
-    const result = await pool.query(`
+ getStats: async (role, userId) => {
+    let query = `
       SELECT 
         COUNT(*) as total_customers,
         COUNT(CASE WHEN status='Active' THEN 1 END) as active_customers,
         SUM(outstanding) as total_outstanding,
         SUM(total_payments) as total_payments
       FROM customers
-    `);
+    `;
+    const vals = [];
+    if (role !== 'chairman' && userId) {
+      query += ` WHERE created_by = $1`;
+      vals.push(userId);
+    }
+    const result = await pool.query(query, vals);
     return result.rows[0];
   }
 };

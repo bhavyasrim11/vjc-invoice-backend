@@ -5,7 +5,7 @@ const customerService = {
 
   getAllCustomers: async (filters) => {
     const customers = await customerRepository.getAll(filters);
-    const stats = await customerRepository.getStats();
+    const stats = await customerRepository.getStats(filters.role, filters.userId);
     return { customers, stats };
   },
 
@@ -18,12 +18,12 @@ const customerService = {
   createCustomer: async (data) => {
     // Check duplicate email
     const existing = await customerRepository.getAll({
-  search: data.email
+  search: data.email,
+  role: 'chairman',  // ← always check all customers for duplicate email
+  userId: null,
 });
 
-const emailExists = existing.find(
-  c => c.email === data.email
-);
+const emailExists = existing.find(c => c.email === data.email);
     if (emailExists) throw new Error('Email already exists');
 
     // Auto-generate customer_id

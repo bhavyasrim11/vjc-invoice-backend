@@ -6,12 +6,14 @@ const express = require("express");
 const router  = express.Router();
 const ctrl    = require("../controllers/payment.controller");
 
-router.get("/",              ctrl.getAll);
-router.get("/:id",           ctrl.getById);
-router.post("/",             ctrl.create);
-router.put("/:id/reminder",  ctrl.remind);
-router.put("/:id/record",    ctrl.record);
-router.put("/:id/void",      ctrl.voidPay);
-router.delete("/:id",        ctrl.remove);
+const { verifyToken } = require('../middlewares/auth.middleware');  // ← ADD
+
+router.get("/",              verifyToken, ctrl.getAll);             // ← ADD
+router.get("/:id",           verifyToken, ctrl.getById);
+router.post("/",             verifyToken, ctrl.create);
+router.put("/:id/reminder",  verifyToken, ctrl.remind);
+router.put("/:id/record",    verifyToken, ctrl.record);
+router.put("/:id/void",      verifyToken, ctrl.voidPay);
+router.delete("/:id",        verifyToken, ctrl.remove);
 
 module.exports = router;

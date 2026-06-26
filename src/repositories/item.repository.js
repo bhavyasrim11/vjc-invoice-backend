@@ -2,10 +2,16 @@ const pool = require('../config/db');
 
 const itemRepository = {
 
-  getAll: async ({ search, status, category }) => {
+  getAll: async ({ search, status, category, role, userId }) => {
     let query = 'SELECT * FROM items WHERE 1=1';
     const values = [];
     let i = 1;
+
+    if (role !== 'chairman' && userId) {
+      query += ` AND created_by = $${i}`;
+      values.push(userId);
+      i++;
+    }
 
     if (search) {
       query += ` AND (service_name ILIKE $${i} OR category ILIKE $${i} OR country ILIKE $${i})`;
@@ -36,17 +42,17 @@ const itemRepository = {
   create: async (data) => {
     const {
       item_id, service_name, category, country,
-      price, gst, duration, documents, description, status
+      price, gst, duration, documents, description, status, created_by
     } = data;
 
     const result = await pool.query(
       `INSERT INTO items
         (item_id, service_name, category, country, price, gst,
-         duration, documents, description, status)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+         duration, documents, description, status, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
        RETURNING *`,
       [item_id, service_name, category, country,
-       price, gst, duration, documents, description, status]
+       price, gst, duration, documents, description, status, created_by || null]
     );
     return result.rows[0];
   },
@@ -76,14 +82,16 @@ const itemRepository = {
     return result.rows[0];
   },
 
-  getStats: async () => {
+  getStats: async (role, userId) => {
+    const whereClause = (role !== 'chairman' && userId)
+      ? `WHERE created_by = '${userId}'`
+      : '';
     const itemResult = await pool.query(`
       SELECT
         COUNT(*) as total_items,
         COUNT(CASE WHEN status='Active' THEN 1 END) as active_items
-      FROM items
+      FROM items ${whereClause}
     `);
-
     const revenueResult = await pool.query(`
       SELECT COALESCE(SUM(grand_total), 0) as total_revenue
       FROM invoices

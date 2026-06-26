@@ -5,8 +5,7 @@ const itemService = {
 
   getAllItems: async (filters) => {
     const items = await itemRepository.getAll(filters);
-    const stats = await itemRepository.getStats();
-    return { items, stats };
+const stats = await itemRepository.getStats(filters.role, filters.userId);    return { items, stats };
   },
 
   getItemById: async (id) => {

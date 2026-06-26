@@ -5,8 +5,7 @@ const bcrypt     = require("bcryptjs");
 const jwt        = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
-const JWT_SECRET = process.env.JWT_SECRET || "vjc_secret_2026";
-
+const JWT_SECRET = process.env.JWT_SECRET || "vjc_invoice_secret_2024";
 module.exports = (db) => {
 
   // ── Create users table on startup (PostgreSQL syntax) ────

@@ -16,10 +16,15 @@ const generatePaymentNo = async () => {
 };
 
 // ── Get All ──────────────────────────────────────────────────
-const getAllPayments = async () => {
-  const result = await pool.query(
-    "SELECT * FROM payments ORDER BY id DESC"
-  );
+const getAllPayments = async ({ role, userId } = {}) => {
+  let query = "SELECT * FROM payments";
+  const vals = [];
+  if (role !== 'chairman' && userId) {
+    query += " WHERE created_by = $1";
+    vals.push(userId);
+  }
+  query += " ORDER BY id DESC";
+  const result = await pool.query(query, vals);
   return result.rows;
 };
 
@@ -36,16 +41,17 @@ const createPayment = async (data) => {
   const paymentNo = await generatePaymentNo();
   const { invoice_id, customer_id, customer_name, email, due_date, amount_due, notes } = data;
 
-  const result = await pool.query(
+const result = await pool.query(
     `INSERT INTO payments
       (payment_no, invoice_id, customer_id, customer_name, email,
        request_date, due_date, amount_due, amount_received,
-       payment_method, txn_ref, paid_date, status, notes, reminder_log)
+       payment_method, txn_ref, paid_date, status, notes, reminder_log, created_by)
      VALUES ($1,$2,$3,$4,$5, CURRENT_DATE,$6,$7,0,'','',NULL,
-             'Initial Request',$8,'[]')
+             'Initial Request',$8,'[]',$9)
      RETURNING *`,
     [paymentNo, invoice_id || null, customer_id, customer_name,
-     email || "", due_date || null, Number(amount_due), notes || ""]
+     email || "", due_date || null, Number(amount_due), notes || "",
+     data.created_by || null]
   );
   return result.rows[0];
 };

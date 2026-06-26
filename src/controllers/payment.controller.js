@@ -8,7 +8,9 @@ const emailService = require("../services/email.service");
 // GET /api/payments
 const getAll = async (req, res) => {
   try {
-    const data = await repo.getAllPayments();
+    const role   = req.user?.role;
+    const userId = req.user?.id;
+    const data = await repo.getAllPayments({ role, userId });
     res.json(data);
   } catch (err) {
     console.error("getAll payments error:", err);
@@ -30,7 +32,10 @@ const getById = async (req, res) => {
 // POST /api/payments
 const create = async (req, res) => {
   try {
-    const data = await repo.createPayment(req.body);
+    const data = await repo.createPayment({
+      ...req.body,
+      created_by: req.user?.id,    // ← ADD
+    });
     res.status(201).json(data);
   } catch (err) {
     console.error("create payment error:", err);
