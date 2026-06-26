@@ -1,16 +1,20 @@
 const pool = require('../config/db');
 
-const getKpis = async () => {
+const getKpis = async (role, userId) => {
+  const isChairman = role === 'chairman';
+  const filter = isChairman ? '' : `AND created_by = '${userId}'`;
+  const customerFilter = isChairman ? '' : `WHERE created_by = '${userId}'`;
+
   const [customers, invoices, payments, outstanding] = await Promise.all([
-    pool.query(`SELECT COUNT(*) AS count FROM customers`),
-    pool.query(`SELECT COUNT(*) AS count FROM sales_invoices`),
+    pool.query(`SELECT COUNT(*) AS count FROM customers ${customerFilter}`),
+    pool.query(`SELECT COUNT(*) AS count FROM invoices WHERE 1=1 ${filter}`),
+pool.query(`
+  SELECT COALESCE(SUM(paid_amount), 0) AS total
+  FROM invoices WHERE status = 'Approved' ${filter}
+`),
     pool.query(`
-      SELECT COALESCE(SUM(total_amount), 0) AS total
-      FROM sales_invoices WHERE status = 'Paid'
-    `),
-    pool.query(`
-      SELECT COALESCE(SUM(total_amount), 0) AS total
-      FROM sales_invoices WHERE status NOT IN ('Paid','Cancelled','Draft')
+      SELECT COALESCE(SUM(balance_amount), 0) AS total
+      FROM invoices WHERE status = 'Approved' AND balance_amount > 0 ${filter}
     `),
   ]);
 
@@ -22,19 +26,23 @@ const getKpis = async () => {
   };
 };
 
-const getSalesExpensesOverview = async () => {
+const getSalesExpensesOverview = async (role, userId) => {
+  const isChairman = role === 'chairman';
+  const filter = isChairman ? '' : `AND created_by = '${userId}'`;
   // last 6 months: Sales (sales_invoices), Receipts (Paid amount), Expenses (expenses table)
   const result = await pool.query(`
     SELECT
       TO_CHAR(month_series, 'Mon') AS month,
       EXTRACT(MONTH FROM month_series) AS month_num,
-      COALESCE((
-        SELECT SUM(total_amount) FROM sales_invoices
+COALESCE((
+        SELECT SUM(grand_total) FROM invoices
         WHERE DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
+        ${filter}
       ), 0) AS sales,
       COALESCE((
-        SELECT SUM(total_amount) FROM sales_invoices
-        WHERE status = 'Paid' AND DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
+        SELECT SUM(paid_amount) FROM invoices
+        WHERE status = 'Approved' AND DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
+        ${filter}
       ), 0) AS receipts,
       COALESCE((
         SELECT SUM(amount) FROM expenses
@@ -64,17 +72,20 @@ const getSalesExpensesOverview = async () => {
   return { chart: rows, ...totals };
 };
 
-const getRecentInvoices = async () => {
+const getRecentInvoices = async (role, userId) => {
+  const isChairman = role === 'chairman';
+  const filter = isChairman ? '' : `WHERE created_by = '${userId}'`;
   const result = await pool.query(`
-    SELECT invoice_id, customer_name, total_amount, status
-    FROM sales_invoices
+    SELECT invoice_number, customer_name, grand_total, status
+    FROM invoices
+    ${filter}
     ORDER BY created_at DESC
     LIMIT 5
   `);
   return result.rows.map(r => ({
-    invoiceNo: r.invoice_id,
+    invoiceNo: r.invoice_number,
     customerName: r.customer_name,
-    amount: Number(r.total_amount),
+    amount: Number(r.grand_total),
     status: r.status,
   }));
 };

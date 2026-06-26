@@ -1,7 +1,11 @@
 const pool = require('../config/db');
 
 // 1. Sales by Customer
-const salesByCustomer = async () => {
+const salesByCustomer = async ({ role, userId } = {}) => {
+  const whereClause = (role !== 'chairman' && userId)
+    ? `WHERE i.created_by = '${userId}'`
+    : '';
+
   const result = await pool.query(`
     SELECT
       i.customer_name AS customer,
@@ -11,6 +15,7 @@ const salesByCustomer = async () => {
     FROM invoices i
     LEFT JOIN payments p
       ON p.customer_name = i.customer_name
+    ${whereClause}
     GROUP BY i.customer_name
     ORDER BY amount DESC
   `);
@@ -25,26 +30,29 @@ const salesByCustomer = async () => {
 };
 
 // 2. Sales by Item (unnest line_items jsonb)
-const salesByItem = async () => {
+const salesByItem = async ({ role, userId } = {}) => {
+  const whereClause = (role !== 'chairman' && userId)
+    ? `WHERE created_by = '${userId}'`
+    : '';
+
   const result = await pool.query(`
     SELECT
-      CASE
-        WHEN items->0->>'description' IS NULL
-             OR TRIM(items->0->>'description') = ''
-        THEN 'Visa Service'
-        ELSE items->0->>'description'
-      END AS item,
+      COALESCE(NULLIF(TRIM(service_type), ''), 'Other') AS item,
       COUNT(*) AS qty,
-      COALESCE(SUM(total_amount), 0) AS amount
+      COALESCE(SUM(total_amount), 0) AS amount,
+      COALESCE(SUM(paid_amount), 0) AS paid,
+      COALESCE(SUM(balance_amount), 0) AS pending
     FROM invoices
+    ${whereClause}
     GROUP BY item
     ORDER BY amount DESC
   `);
-
   return result.rows.map(r => ({
     item: r.item,
     qty: Number(r.qty),
     amount: Number(r.amount),
+    paid: Number(r.paid),
+    pending: Number(r.pending),
     avgPrice:
       Number(r.qty) > 0
         ? Math.round(Number(r.amount) / Number(r.qty))
@@ -53,7 +61,11 @@ const salesByItem = async () => {
 };
 
 // 3. Invoice Details
-const invoiceDetails = async () => {
+const invoiceDetails = async ({ role, userId } = {}) => {
+  const whereClause = (role !== 'chairman' && userId)
+    ? `WHERE created_by = '${userId}'`
+    : '';
+
   const result = await pool.query(`
     SELECT
       invoice_number,
@@ -61,25 +73,25 @@ const invoiceDetails = async () => {
       invoice_date,
       due_date,
       total_amount,
+      paid_amount,
+      balance_amount,
       status
     FROM invoices
+    ${whereClause}
     ORDER BY created_at DESC
   `);
 
   return result.rows.map(r => ({
     invoiceNo: r.invoice_number,
     customer: r.customer_name,
-    date: r.invoice_date
-      ? new Date(r.invoice_date).toISOString().slice(0, 10)
-      : '',
-    dueDate: r.due_date
-      ? new Date(r.due_date).toISOString().slice(0, 10)
-      : '',
+    date: r.invoice_date ? new Date(r.invoice_date).toISOString().slice(0, 10) : '',
+    dueDate: r.due_date ? new Date(r.due_date).toISOString().slice(0, 10) : '',
     amount: Number(r.total_amount || 0),
+    paid: Number(r.paid_amount || 0),
+    balance: Number(r.balance_amount || 0),
     status: r.status || '',
   }));
 };
-
 // 4. Quote Details
 const quoteDetails = async () => {
   const result = await pool.query(`
@@ -155,6 +167,47 @@ const customerBalanceSummary = async () => {
   }));
 };
 
+// 8. Sales by Sales Person
+const salesBySalesPerson = async ({ role, userId, dateRange } = {}) => {
+  const dateFilter = {
+    today:       `AND DATE(i.invoice_date) = CURRENT_DATE`,
+    thisWeek:    `AND DATE(i.invoice_date) >= DATE_TRUNC('week', CURRENT_DATE)`,
+    thisMonth:   `AND DATE_TRUNC('month', i.invoice_date) = DATE_TRUNC('month', CURRENT_DATE)`,
+    lastMonth:   `AND DATE_TRUNC('month', i.invoice_date) = DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')`,
+    thisQuarter: `AND DATE_TRUNC('quarter', i.invoice_date) = DATE_TRUNC('quarter', CURRENT_DATE)`,
+    thisYear:    `AND DATE_TRUNC('year', i.invoice_date) = DATE_TRUNC('year', CURRENT_DATE)`,
+  }[dateRange] || '';
+
+  const userFilter = (role !== 'chairman' && userId)
+    ? `AND u.id = ${userId}`
+    : '';
+
+  const result = await pool.query(`
+    SELECT
+      u.name AS person,
+      u.email AS email,
+      COUNT(i.id) AS invoices,
+      COALESCE(SUM(i.total_amount), 0) AS amount,
+      COALESCE(SUM(i.paid_amount), 0) AS paid,
+      COALESCE(SUM(i.balance_amount), 0) AS pending
+    FROM users u
+    LEFT JOIN invoices i ON i.created_by = u.id::text
+    ${dateFilter}
+    WHERE u.role != 'chairman'
+    ${userFilter}
+    GROUP BY u.id, u.name, u.email
+    ORDER BY amount DESC
+  `);
+  return result.rows.map(r => ({
+    person: r.person,
+    email: r.email,
+    invoices: Number(r.invoices),
+    amount: Number(r.amount),
+    paid: Number(r.paid),
+    pending: Number(r.pending),
+  }));
+};
+
 module.exports = {
   salesByCustomer,
   salesByItem,
@@ -163,4 +216,5 @@ module.exports = {
   paymentsReceived,
   arAgingSummary,
   customerBalanceSummary,
+  salesBySalesPerson,
 };

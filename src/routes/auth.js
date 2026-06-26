@@ -323,3 +323,16 @@ if (!user.plain_password) {
 
   return router;
 };
+const JWT_SECRET_EXPORT = process.env.JWT_SECRET || "vjc_invoice_secret_2024";
+const jwt_export = require("jsonwebtoken");
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ success: false, message: "No token" });
+  try {
+    req.user = jwt_export.verify(token, JWT_SECRET_EXPORT);
+    next();
+  } catch {
+    res.status(401).json({ success: false, message: "Invalid token" });
+  }
+};
+module.exports.verifyToken = verifyToken;
