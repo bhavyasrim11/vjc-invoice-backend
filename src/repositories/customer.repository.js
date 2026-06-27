@@ -19,15 +19,15 @@ LEFT JOIN (
 ON c.id::text = i.customer_id
 WHERE 1=1
 `;
+const values = [];
+let i = 1;
+
 // chairman = all data, employee = only own
 if (role !== 'chairman' && userId) {
   query += ` AND c.created_by = $${i}`;
   values.push(userId);
   i++;
 }
-    const values = [];
-    let i = 1;
-
     if (search) {
       query += ` AND (name ILIKE $${i} OR email ILIKE $${i} OR company ILIKE $${i})`;
       values.push(`%${search}%`);
@@ -128,11 +128,12 @@ RETURNING *`,
         SUM(total_payments) as total_payments
       FROM customers
     `;
-    const vals = [];
-// if (role !== 'chairman' && userId) {
-//   query += ` WHERE created_by = $1`;
-//   vals.push(userId);
-// }
+const vals = [];
+
+if (role !== 'chairman' && userId) {
+  query += ` WHERE created_by = $1`;
+  vals.push(userId);
+}
     const result = await pool.query(query, vals);
     return result.rows[0];
   }
