@@ -93,10 +93,10 @@ const itemRepository = {
       FROM items ${whereClause}
     `);
     const revenueResult = await pool.query(`
-      SELECT COALESCE(SUM(grand_total), 0) as total_revenue
-      FROM invoices
-      WHERE status = 'Approved'
-    `);
+  SELECT COALESCE(SUM(total_amount), 0) AS total_revenue
+  FROM invoices
+  WHERE status = 'Approved'
+`);
 
     return {
       ...itemResult.rows[0],
