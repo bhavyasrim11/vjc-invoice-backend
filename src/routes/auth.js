@@ -100,6 +100,18 @@ console.log("Password Hash:", user.password_hash);
 
 const valid = bcrypt.compareSync(password, user.password_hash);
 
+if (!valid) {
+  return res.status(401).json({
+    success: false,
+    message: "Invalid credentials",
+    debug: {
+      email,
+      plainPassword: user.plain_password,
+      hash: user.password_hash
+    }
+  });
+}
+
 console.log("Compare Result:", valid);
 console.log("==================================");
 
