@@ -93,9 +93,21 @@ const { rows } = await db.query(
       if (!user)
         return res.status(401).json({ success: false, message: "Invalid credentials" });
 
-      const valid = bcrypt.compareSync(password, user.password_hash);
+      console.log("==================================");
+console.log("Email:", email);
+console.log("Password from UI:", password);
+console.log("Password Hash:", user.password_hash);
+
+const valid = bcrypt.compareSync(password, user.password_hash);
+
+console.log("Compare Result:", valid);
+console.log("==================================");
+
 if (!valid)
-  return res.status(401).json({ success: false, message: "Invalid credentials" });
+  return res.status(401).json({
+    success: false,
+    message: "Invalid credentials"
+  });
 
 // plain_password null unte — first login lo auto-save cheyyi
 if (!user.plain_password) {
