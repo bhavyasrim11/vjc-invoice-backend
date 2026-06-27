@@ -130,9 +130,14 @@ if (!user.plain_password) {
         }
       });
     } catch (err) {
-      console.error("Login error:", err);
-      res.status(500).json({ success: false, message: "Server error" });
-    }
+  console.error("Login error:", err);
+
+  res.status(500).json({
+    success: false,
+    message: err.message,
+    error: err.stack
+  });
+}
   });
 
   // ── GET /api/auth/me ──────────────────────────────────────
