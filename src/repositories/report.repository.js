@@ -2,9 +2,7 @@ const pool = require('../config/db');
 
 // 1. Sales by Customer
 const salesByCustomer = async ({ role, userId } = {}) => {
-  const whereClause = (role !== 'chairman' && userId)
-    ? `WHERE i.created_by = '${userId}'`
-    : '';
+ const whereClause = '';
 
   const result = await pool.query(`
     SELECT

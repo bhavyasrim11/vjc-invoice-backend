@@ -16,7 +16,7 @@ LEFT JOIN (
   FROM invoices
   ORDER BY customer_id, id DESC
 ) i
-ON c.id = i.customer_id
+ON c.id::text = i.customer_id
 WHERE 1=1
 `;
     // chairman = all data, employee = only own

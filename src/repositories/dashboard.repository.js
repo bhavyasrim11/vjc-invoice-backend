@@ -2,8 +2,8 @@ const pool = require('../config/db');
 
 const getKpis = async (role, userId) => {
   const isChairman = role === 'chairman';
-  const filter = isChairman ? '' : `AND created_by = '${userId}'`;
-  const customerFilter = isChairman ? '' : `WHERE created_by = '${userId}'`;
+ const filter = '';
+const customerFilter = '';
 
   const [customers, invoices, payments, outstanding] = await Promise.all([
     pool.query(`SELECT COUNT(*) AS count FROM customers ${customerFilter}`),
@@ -74,7 +74,7 @@ COALESCE((
 
 const getRecentInvoices = async (role, userId) => {
   const isChairman = role === 'chairman';
-  const filter = isChairman ? '' : `WHERE created_by = '${userId}'`;
+  const filter = '';
   const result = await pool.query(`
     SELECT invoice_number, customer_name, grand_total, status
     FROM invoices
