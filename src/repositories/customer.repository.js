@@ -67,20 +67,20 @@ WHERE 1=1
   create: async (data) => {
    const {
   customer_id, name, email, phone, company,
-  service_type, service_id,
+  service_type,
   type, status, address, city, state,
   pincode, gstin, notes, created_by
 } = data;
 
     const result = await pool.query(
       `INSERT INTO customers
-(customer_id, name, email, phone, company, service_type, service_id, type, status,
+(customer_id, name, email, phone, company, service_type, type, status,
  address, city, state, pincode, gstin, notes, created_by)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
 RETURNING *`,
-     [
+    [
   customer_id, name, email, phone, company,
-  service_type, service_id,
+  service_type,
   type, status,
   address, city, state, pincode, gstin, notes, created_by || null
 ]
