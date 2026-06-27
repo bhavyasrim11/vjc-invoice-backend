@@ -75,14 +75,14 @@ WHERE 1=1
     const result = await pool.query(
       `INSERT INTO customers
 (customer_id, name, email, phone, company, service_type, type, status,
- address, city, state, pincode, gstin, notes, created_by)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+ address, city, state, pincode, gstin, notes)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
 RETURNING *`,
-    [
+   [
   customer_id, name, email, phone, company,
   service_type,
   type, status,
-  address, city, state, pincode, gstin, notes, created_by || null
+  address, city, state, pincode, gstin, notes
 ]
     );
     return result.rows[0];
@@ -126,10 +126,10 @@ RETURNING *`,
       FROM customers
     `;
     const vals = [];
-    if (role !== 'chairman' && userId) {
-      query += ` WHERE created_by = $1`;
-      vals.push(userId);
-    }
+// if (role !== 'chairman' && userId) {
+//   query += ` WHERE created_by = $1`;
+//   vals.push(userId);
+// }
     const result = await pool.query(query, vals);
     return result.rows[0];
   }
