@@ -19,10 +19,12 @@ LEFT JOIN (
 ON c.id::text = i.customer_id
 WHERE 1=1
 `;
-    // chairman = all data, employee = only own
-   // if (role !== 'chairman' && userId) {
-//   query += ` AND c.created_by = '${userId}'`;
-// }
+// chairman = all data, employee = only own
+if (role !== 'chairman' && userId) {
+  query += ` AND c.created_by = $${i}`;
+  values.push(userId);
+  i++;
+}
     const values = [];
     let i = 1;
 
@@ -72,19 +74,20 @@ WHERE 1=1
   pincode, gstin, notes, created_by
 } = data;
 
-    const result = await pool.query(
-      `INSERT INTO customers
+const result = await pool.query(
+  `INSERT INTO customers
 (customer_id, name, email, phone, company, service_type, type, status,
- address, city, state, pincode, gstin, notes)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+ address, city, state, pincode, gstin, notes, created_by)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
 RETURNING *`,
-   [
+[
   customer_id, name, email, phone, company,
   service_type,
   type, status,
-  address, city, state, pincode, gstin, notes
+  address, city, state, pincode, gstin, notes,
+  created_by
 ]
-    );
+);
     return result.rows[0];
   },
 
