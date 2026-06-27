@@ -16,13 +16,13 @@ LEFT JOIN (
   FROM invoices
   ORDER BY customer_id, id DESC
 ) i
-ON c.id = i.customer_id
+ON c.customer_id = i.customer_id
 WHERE 1=1
 `;
     // chairman = all data, employee = only own
-    if (role !== 'chairman' && userId) {
-      query += ` AND c.created_by = '${userId}'`;
-    }
+   // if (role !== 'chairman' && userId) {
+//   query += ` AND c.created_by = '${userId}'`;
+// }
     const values = [];
     let i = 1;
 
