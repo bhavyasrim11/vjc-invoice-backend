@@ -189,7 +189,7 @@ const salesBySalesPerson = async ({ role, userId, dateRange } = {}) => {
       COALESCE(SUM(i.paid_amount), 0) AS paid,
       COALESCE(SUM(i.balance_amount), 0) AS pending
     FROM users u
-    LEFT JOIN invoices i ON i.created_by = u.id::text
+    LEFT JOIN invoices i ON i.created_by = u.id
     ${dateFilter}
     WHERE u.role != 'chairman'
     ${userFilter}
