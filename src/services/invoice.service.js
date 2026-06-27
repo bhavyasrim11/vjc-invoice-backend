@@ -5,11 +5,11 @@ const pool = require('../config/db');
 
 const invoiceService = {
 
-  getAllInvoices: async () => {
-    const invoices = await invoiceRepository.getAll();
-    const stats = await invoiceRepository.getStats();
-    return { invoices, stats };
-  },
+  getAllInvoices: async ({ role, userId }) => {
+  const invoices = await invoiceRepository.getAll({ role, userId });
+  const stats = await invoiceRepository.getStats();
+  return { invoices, stats };
+},
 
   createInvoice: async (data) => {
     const invoice_number = await generateInvoiceNumber();
