@@ -98,7 +98,15 @@ const itemRepository = {
   WHERE status = 'Approved'
   ${role !== 'chairman' && userId ? `AND created_by = '${userId}'` : ''}
 `);
-
+const mostSoldResult = await pool.query(`
+  SELECT service_type
+  FROM invoices
+  WHERE status = 'Approved'
+  ${role !== 'chairman' && userId ? `AND created_by = '${userId}'` : ''}
+  GROUP BY service_type
+  ORDER BY COUNT(*) DESC
+  LIMIT 1
+`);
     return {
   ...itemResult.rows[0],
   total_revenue: revenueResult.rows[0].total_revenue,
