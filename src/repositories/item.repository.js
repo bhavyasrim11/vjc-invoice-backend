@@ -96,6 +96,7 @@ const itemRepository = {
   SELECT COALESCE(SUM(total_amount), 0) AS total_revenue
   FROM invoices
   WHERE status = 'Approved'
+  ${role !== 'chairman' && userId ? `AND created_by = '${userId}'` : ''}
 `);
 
     return {
