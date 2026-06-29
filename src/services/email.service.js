@@ -628,16 +628,13 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
       </table>
 
       <table style="width:100%;border-collapse:collapse;font-size:12.5px;color:#333;margin-bottom:16px;">
-        <tr>
-          <td style="padding:3px 10px;">Amount Due</td>
-          <td style="padding:3px 10px;text-align:right;">₹${amountDue.toLocaleString('en-IN')}</td>
-        </tr>
-        <tr>
-          <td style="padding:3px 10px;">Amount Received</td>
-          <td style="padding:3px 10px;text-align:right;">₹${amountReceived.toLocaleString('en-IN')}</td>
-        </tr>
-      </table>
-
+  <tr>
+    <td style="padding:3px 10px;">Amount Due</td>
+    <td style="padding:3px 10px;text-align:right;">
+      ₹${amountDue.toLocaleString('en-IN')}
+    </td>
+  </tr>
+</table>
       <div style="background:#fff3f0;border-radius:6px;padding:18px 20px;text-align:right;margin-bottom:20px;">
         <div style="font-size:12px;color:#555;">Balance Due</div>
         <div style="font-size:24px;font-weight:800;color:${stageColor};">

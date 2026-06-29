@@ -32,9 +32,13 @@ const getById = async (req, res) => {
 // POST /api/payments
 const create = async (req, res) => {
   try {
+
+    console.log("PAYMENT REQUEST BODY =>", req.body);
+
     const data = await repo.createPayment({
       ...req.body,
-      created_by: req.user?.id,    // ← ADD
+      created_by: req.user?.id,
+  
     });
     res.status(201).json(data);
   } catch (err) {
