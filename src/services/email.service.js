@@ -229,7 +229,7 @@ const emailService = {
       </tr>
     </table>
 
-    <!-- Totals -->
+   <!-- Totals -->
     <div style="padding:22px 28px 0 28px;">
       <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
         <tr>
@@ -256,6 +256,19 @@ const emailService = {
             ${currency} ${sgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </td>
         </tr>
+        ${Number(invoice.paid_amount || 0) > 0 ? `
+        <tr style="background:#f0fdf4;">
+          <td style="padding:4px 0 4px 6px;color:#16a34a;font-weight:700;">Paid Amount:</td>
+          <td style="padding:4px 6px 4px 0;text-align:right;font-weight:700;color:#16a34a;">
+            ${currency} ${Number(invoice.paid_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          </td>
+        </tr>
+        <tr style="background:#fff3f0;">
+          <td style="padding:4px 0 10px 6px;color:#d32f2f;font-weight:700;">Balance Amount:</td>
+          <td style="padding:4px 6px 10px 0;text-align:right;font-weight:700;color:#d32f2f;">
+            ${currency} ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          </td>
+        </tr>` : ''}
       </table>
       <hr style="border:none;border-top:1px solid #e6e6e6;margin:0 0 8px 0;" />
       <table style="width:100%;border-collapse:collapse;">
@@ -269,8 +282,20 @@ const emailService = {
       <div style="text-align:right;font-size:11.5px;color:#555;margin-top:3px;">
         Grand Total in Word : <strong>${grandTotalWords}</strong>
       </div>
+      ${Number(invoice.paid_amount || 0) > 0 ? `
+      <div style="margin-top:6px;text-align:right;font-size:11.5px;color:#16a34a;font-weight:700;">
+        Paid Amount in Word : <strong>${numberToWords(Number(invoice.paid_amount))} Only</strong>
+      </div>` : ''}
     </div>
 
+    <!-- Description -->
+    ${invoice.notes ? `
+    <div style="padding:16px 28px 0 28px;">
+      <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:5px;">Description</div>
+      <div style="font-size:12px;color:#555;background:#f8f9fa;padding:10px 14px;border-radius:4px;line-height:1.6;">
+        ${invoice.notes}
+      </div>
+    </div>` : ''}
     <!-- Terms -->
     <div style="padding:20px 28px 24px 28px;">
       <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:5px;">Notes / Terms &amp; Conditions</div>
