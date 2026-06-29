@@ -13,11 +13,48 @@ const emailService = {
 <div style="font-family:Arial,sans-serif;background:#f4f6f9;padding:20px;">
   <div style="max-width:900px;margin:auto;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #ddd;">
 
-    <div style="background:#0f9d94;color:#fff;padding:18px 25px;">
-      <h2 style="margin:0;">Create Client Invoice</h2>
-    </div>
+    <div style="background:#0f9d94;color:#fff;padding:18px 25px;position:relative;">
 
-    <div style="padding:25px;">
+  <img
+    src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
+    style="height:55px;background:#fff;padding:5px;border-radius:6px;"
+  />
+
+  <h2 style="margin:15px 0 5px;">
+    Invoice Approval Request
+  </h2>
+
+  <div
+    style="
+      display:inline-block;
+      background:#fff3cd;
+      color:#856404;
+      padding:6px 12px;
+      border-radius:20px;
+      font-size:13px;
+      font-weight:bold;
+    ">
+    🟡 Pending Approval
+  </div>
+
+</div>
+
+<div style="padding:20px 25px 0 25px;
+font-size:15px;
+color:#555;
+line-height:24px;">
+
+Dear Chairman,
+
+<br><br>
+
+A new invoice has been created and is awaiting your approval.
+
+Please review the invoice details below before approving or rejecting it.
+
+</div>
+
+<div style="padding:25px;">
 
       <table style="width:100%;border-collapse:collapse;">
         <tr>
@@ -28,16 +65,31 @@ const emailService = {
           <td style="padding:10px;">${invoice.invoice_number}</td>
         </tr>
 
-        <tr style="background:#f8f9fa;">
-          <td style="padding:10px;font-weight:bold;">Customer Email</td>
-          <td style="padding:10px;">${invoice.customer_email}</td>
+        ${invoice.customer_gstin || invoice.customer_address ? `
+<tr style="background:#f8f9fa;">
 
-          <td style="padding:10px;font-weight:bold;">Grand Total</td>
-          <td style="padding:10px;">
-            ₹${Number(invoice.grand_total || 0).toLocaleString('en-IN')}
-          </td>
-        </tr>
+${invoice.customer_gstin ? `
+<td style="padding:10px;font-weight:bold;">GSTIN</td>
+<td style="padding:10px;">
+${invoice.customer_gstin}
+</td>
+` : `
+<td></td>
+<td></td>
+`}
 
+${invoice.customer_address ? `
+<td style="padding:10px;font-weight:bold;">Address</td>
+<td style="padding:10px;">
+${invoice.customer_address}
+</td>
+` : `
+<td></td>
+<td></td>
+`}
+
+</tr>
+` : ``}
         <tr>
           <td style="padding:10px;font-weight:bold;">Subtotal</td>
           <td style="padding:10px;">
@@ -70,7 +122,13 @@ const emailService = {
 
           <td style="padding:10px;font-weight:bold;">Due Date</td>
           <td style="padding:10px;">
-            ${invoice.due_date || '-'}
+ ${invoice.due_date
+ ? new Date(invoice.due_date).toLocaleDateString('en-GB',{
+      day:'2-digit',
+      month:'short',
+      year:'numeric'
+   })
+ : '-'}
           </td>
         </tr>
 
@@ -86,15 +144,40 @@ const emailService = {
           </td>
         </tr>
 
-        <tr>
-          <td style="padding:10px;font-weight:bold;">Description</td>
-          <td colspan="3" style="padding:10px;">
-            ${invoice.notes || '-'}
-          </td>
-        </tr>
-      </table>
+       ${invoice.notes ? `
+<tr>
+  <td style="padding:10px;font-weight:bold;">Description</td>
+  <td colspan="3" style="padding:10px;">
+    ${invoice.notes}
+  </td>
+</tr>
+` : ``}
+     </table>
 
-      <div style="margin-top:35px;text-align:center;">
+<div style="margin-top:25px;">
+
+<h3
+style="
+margin-bottom:10px;
+color:#1976d2;
+">
+
+Invoice Preview
+
+</h3>
+
+<img
+src="YOUR_SCREENSHOT_URL"
+style="
+width:100%;
+border:1px solid #ddd;
+border-radius:8px;
+"
+/>
+
+</div>
+
+<div style="margin-top:35px;text-align:center;">
         <a href="${approveUrl}"
           style="background:#2e7d32;color:#fff;padding:14px 35px;
           text-decoration:none;border-radius:5px;font-size:16px;
@@ -109,6 +192,26 @@ const emailService = {
         </a>
       </div>
 
+          </div>
+
+<hr style="margin-top:35px;border:none;border-top:1px solid #ddd;">
+
+<div
+style="
+padding:18px;
+text-align:center;
+font-size:13px;
+color:#666;
+">
+
+Regards,
+
+<br><br>
+
+<b>VJC Overseas</b>
+
+</div>
+
     </div>
   </div>
 </div>
@@ -117,7 +220,8 @@ const emailService = {
     await transporter.sendMail({
       from: `"VJC Invoice" <${process.env.EMAIL_USER}>`,
       to: process.env.CHAIRMAN_EMAIL,
-      subject: `🔔 Invoice Approval: ${invoice.invoice_number} - ₹${Number(invoice.total_amount).toLocaleString('en-IN')}`,
+     subject:
+`Invoice Approval Required - ${invoice.invoice_number}`,
       html,
     });
     console.log('✅ Chairman mail sent!');
