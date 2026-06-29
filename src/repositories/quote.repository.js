@@ -10,9 +10,18 @@ if (role !== 'chairman' && userId) {
 }
 
 
-  query += ' ORDER BY id DESC';
-  const result = await pool.query(query, vals);
-  return result.rows;
+query += ' ORDER BY id DESC';
+
+console.log("ROLE:", role);
+console.log("USER ID:", userId);
+console.log("QUERY:", query);
+console.log("VALUES:", vals);
+
+const result = await pool.query(query, vals);
+
+console.log("QUOTE RESULT:", result.rows);
+
+return result.rows;
 };
 const getQuoteById = async (id) => {
   const result = await pool.query(

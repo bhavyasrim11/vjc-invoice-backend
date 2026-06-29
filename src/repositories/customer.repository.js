@@ -45,8 +45,12 @@ if (role !== 'chairman' && userId) {
     }
 
     query += ` ORDER BY created_at DESC`;
-    const result = await pool.query(query, values);
-    return result.rows;
+console.log("CUSTOMER QUERY:");
+console.log(query);
+console.log(values);
+
+const result = await pool.query(query, values);
+return result.rows;
   },
 
   // Get single customer by ID
