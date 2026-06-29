@@ -100,9 +100,10 @@ const itemRepository = {
 `);
 
     return {
-      ...itemResult.rows[0],
-      total_revenue: revenueResult.rows[0].total_revenue,
-    };
+  ...itemResult.rows[0],
+  total_revenue: revenueResult.rows[0].total_revenue,
+  most_sold: mostSoldResult.rows[0]?.service_type || "-",
+};
   },
 };
 
