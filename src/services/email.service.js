@@ -174,18 +174,13 @@ const emailService = {
     <!-- Header -->
     <table style="width:100%;border-collapse:collapse;padding:0;">
       <tr>
-        <td style="vertical-align:top;width:55%;padding:22px 0 0 28px;">
-          <div style="font-size:19px;font-weight:800;color:#1565c0;letter-spacing:0.3px;line-height:1;">
-            VJC OVERSEAS
-          </div>
-          <div style="font-size:10.5px;font-weight:700;color:#444;letter-spacing:1px;margin-top:4px;">
-            IMMIGRATION &amp; VISA
-          </div>
-          <div style="display:inline-block;background:#f57c00;color:#fff;font-size:10.5px;
-            font-weight:700;letter-spacing:1px;padding:2px 8px;margin-top:5px;border-radius:2px;">
-            CONSULTANTS
-          </div>
-        </td>
+<td style="vertical-align:top;width:55%;padding:22px 0 0 28px;">
+  <img
+    src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png "
+    alt="VJC Overseas"
+    style="height:70px;display:block;"
+  />
+</td>
         <td style="vertical-align:top;width:45%;text-align:right;padding:22px 28px 0 0;">
           <div style="font-size:24px;font-weight:800;color:#111;letter-spacing:0.5px;">INVOICE</div>
           <div style="font-size:12.5px;font-weight:700;color:#222;margin-top:5px;">
@@ -232,42 +227,44 @@ const emailService = {
    <!-- Totals -->
     <div style="padding:22px 28px 0 28px;">
       <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
-        <tr>
-          <td style="padding:4px 0;color:#333;">Sub Total:</td>
-          <td style="padding:4px 0;text-align:right;font-weight:600;color:#222;">
-            ${currency} ${subtotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;color:#333;">Invoice Amount:</td>
-          <td style="padding:4px 0;text-align:right;font-weight:600;color:#222;">
-            ${currency} ${invoiceAmountNum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;color:#333;">CGST (${halfTaxPercent}%):</td>
-          <td style="padding:4px 0;text-align:right;font-weight:600;color:#222;">
-            ${currency} ${cgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0 10px 0;color:#333;">SGST (${halfTaxPercent}%):</td>
-          <td style="padding:4px 0 10px 0;text-align:right;font-weight:600;color:#222;">
-            ${currency} ${sgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-          </td>
-        </tr>
+<tr>
+  <td style="padding:4px 0;color:#333;font-weight:600;">Sub Total :</td>
+  <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
+    INR ${subtotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:4px 0;color:#333;font-weight:600;">Invoice Amount :</td>
+  <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
+    INR ${invoiceAmountNum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:4px 0;color:#333;font-weight:600;">CGST (${halfTaxPercent}%) :</td>
+  <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
+    INR ${cgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </td>
+</tr>
+
+<tr>
+  <td style="padding:4px 0;color:#333;font-weight:600;">SGST (${halfTaxPercent}%) :</td>
+  <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
+    INR ${sgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </td>
+</tr>
         ${Number(invoice.paid_amount || 0) > 0 ? `
         <tr style="background:#f0fdf4;">
           <td style="padding:4px 0 4px 6px;color:#16a34a;font-weight:700;">Paid Amount:</td>
           <td style="padding:4px 6px 4px 0;text-align:right;font-weight:700;color:#16a34a;">
-            ${currency} ${Number(invoice.paid_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+ INR ${Number(invoice.paid_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </td>
         </tr>
         <tr style="background:#fff3f0;">
           <td style="padding:4px 0 10px 6px;color:#d32f2f;font-weight:700;">Balance Amount:</td>
           <td style="padding:4px 6px 10px 0;text-align:right;font-weight:700;color:#d32f2f;">
-            ${currency} ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-          </td>
+INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}          </td>
         </tr>` : ''}
       </table>
       <hr style="border:none;border-top:1px solid #e6e6e6;margin:0 0 8px 0;" />
@@ -275,7 +272,7 @@ const emailService = {
         <tr>
           <td style="padding:2px 0;font-size:14px;font-weight:800;color:#111;">Grand Total :</td>
           <td style="padding:2px 0;text-align:right;font-size:14px;font-weight:800;color:#1565c0;">
-            ${currency} ${grandTotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+ INR ${grandTotalNum.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
           </td>
         </tr>
       </table>
