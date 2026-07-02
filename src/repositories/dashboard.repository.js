@@ -10,7 +10,7 @@ const customerFilter = role === 'chairman'
   ? ''
   : `WHERE created_by = ${userId}`;
 
-  const [customers, invoices, payments, outstanding] = await Promise.all([
+  const [customers, invoices, payments, outstanding, monthlyPayments, monthlyOutstanding] = await Promise.all([
     pool.query(`SELECT COUNT(*) AS count FROM customers ${customerFilter}`),
     pool.query(`SELECT COUNT(*) AS count FROM invoices WHERE 1=1 ${filter}`),
 pool.query(`
@@ -21,6 +21,18 @@ pool.query(`
       SELECT COALESCE(SUM(balance_amount), 0) AS total
       FROM invoices WHERE status = 'Approved' AND balance_amount > 0 ${filter}
     `),
+    pool.query(`
+      SELECT COALESCE(SUM(paid_amount), 0) AS total
+      FROM invoices WHERE status = 'Approved'
+      AND DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', CURRENT_DATE)
+      ${filter}
+    `),
+    pool.query(`
+      SELECT COALESCE(SUM(balance_amount), 0) AS total
+      FROM invoices WHERE status = 'Approved' AND balance_amount > 0
+      AND DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', CURRENT_DATE)
+      ${filter}
+    `),
   ]);
 
   return {
@@ -28,6 +40,8 @@ pool.query(`
     totalInvoices:    Number(invoices.rows[0].count),
     paymentsReceived: Number(payments.rows[0].total),
     pendingAmount:    Number(outstanding.rows[0].total),
+    monthlyPaymentsReceived: Number(monthlyPayments.rows[0].total),
+    monthlyPendingAmount:    Number(monthlyOutstanding.rows[0].total),
   };
 };
 
