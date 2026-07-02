@@ -42,8 +42,8 @@ const updateSalesInvoice = async (req, res) => {
 
 const updateSalesInvoiceStatus = async (req, res) => {
   try {
-    const { status } = req.body;
-    const invoice = await salesInvoiceRepo.updateSalesInvoiceStatus(req.params.id, status);
+    const { status, paid_amount } = req.body;
+    const invoice = await salesInvoiceRepo.updateSalesInvoiceStatus(req.params.id, status, paid_amount);
     if (!invoice) return res.status(404).json({ success: false, message: 'Invoice not found' });
     res.json({ success: true, data: invoice });
   } catch (err) {

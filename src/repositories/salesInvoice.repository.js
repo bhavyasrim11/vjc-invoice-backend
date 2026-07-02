@@ -57,7 +57,19 @@ const updateSalesInvoice = async (invoice_id, data) => {
   return result.rows[0];
 };
 
-const updateSalesInvoiceStatus = async (invoice_id, status) => {
+const updateSalesInvoiceStatus = async (invoice_id, status, paid_amount) => {
+  if (paid_amount !== undefined && paid_amount !== null) {
+    const result = await pool.query(
+      `UPDATE sales_invoices SET
+        status=$1,
+        paid_amount=$2,
+        balance_amount = total_amount - $2
+       WHERE invoice_id=$3
+       RETURNING *`,
+      [status, paid_amount, invoice_id]
+    );
+    return result.rows[0];
+  }
   const result = await pool.query(
     'UPDATE sales_invoices SET status=$1 WHERE invoice_id=$2 RETURNING *',
     [status, invoice_id]
