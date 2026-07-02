@@ -17,7 +17,7 @@ const emailService = {
 
   <img
     src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
-    style="height:55px;background:#fff;padding:5px;border-radius:6px;"
+    style="height:55px;display:block;"
   />
 
   <h2 style="margin:15px 0 5px;">
@@ -154,6 +154,7 @@ ${invoice.customer_address}
 ` : ``}
      </table>
 
+${invoice.screenshot_base64 ? `
 <div style="margin-top:25px;">
 
 <h3
@@ -162,12 +163,12 @@ margin-bottom:10px;
 color:#1976d2;
 ">
 
-Invoice Preview
+Payment Screenshot
 
 </h3>
 
 <img
-src="YOUR_SCREENSHOT_URL"
+src="${invoice.screenshot_base64}"
 style="
 width:100%;
 border:1px solid #ddd;
@@ -176,7 +177,7 @@ border-radius:8px;
 />
 
 </div>
-
+` : ''}
 <div style="margin-top:35px;text-align:center;">
         <a href="${approveUrl}"
           style="background:#2e7d32;color:#fff;padding:14px 35px;
@@ -280,7 +281,7 @@ Regards,
       <tr>
 <td style="vertical-align:top;width:55%;padding:22px 0 0 28px;">
   <img
-    src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png "
+src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     alt="VJC Overseas"
     style="height:70px;display:block;"
   />
