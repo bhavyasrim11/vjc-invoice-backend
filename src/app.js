@@ -14,7 +14,7 @@ const { createExpenseTable } = require('./models/expense.model');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '4mb' }));
 
 // Serve static files
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
