@@ -1,4 +1,5 @@
 const invoiceService = require('../services/invoice.service');
+const cloudinary = require('../config/cloudinary');
 
 const invoiceController = {
 
@@ -15,16 +16,24 @@ const invoiceController = {
 
  create: async (req, res) => {
     try {
+      let screenshotUrl = null;
+      if (req.body.screenshot_base64) {
+        const uploadResult = await cloudinary.uploader.upload(req.body.screenshot_base64, {
+          folder: 'vjc-invoice-screenshots',
+        });
+        screenshotUrl = uploadResult.secure_url;
+      }
+
       const invoice = await invoiceService.createInvoice({
         ...req.body,
         created_by: req.user?.id,        // ← ADD
+        screenshot_base64: screenshotUrl,
       });
       res.status(201).json({ success: true, invoice });
     } catch (err) {
       res.status(400).json({ success: false, message: err.message });
     }
   },
-
   approve: async (req, res) => {
     try {
       const invoice = await invoiceService.approveInvoice(req.params.token);
