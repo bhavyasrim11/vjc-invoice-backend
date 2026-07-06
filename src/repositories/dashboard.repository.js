@@ -100,10 +100,9 @@ const getRecentInvoices = async (role, userId) => {
 
   const result = await pool.query(`
     SELECT invoice_number, customer_name, grand_total, paid_amount, status
-    FROM invoices
-    ${filter}
-    ORDER BY created_at DESC
-    LIMIT 5
+FROM invoices
+${filter}
+ORDER BY created_at DESC
   `);
 
   return result.rows.map(r => ({
