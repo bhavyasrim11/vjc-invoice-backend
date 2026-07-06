@@ -4,8 +4,7 @@ const customerRepository = {
 
   // Get all customers with filters
   getAll: async ({ search, status, type, userId, role }) => {
-    // ✅ NEW — ఇది paste చేయి:
-let query = `
+    let query = `
 SELECT
   c.*,
   COALESCE(i.status, 'Pending')   AS invoice_status,
@@ -27,15 +26,14 @@ LEFT JOIN (
 ON c.id::text = i.customer_id
 WHERE 1=1
 `;
-const values = [];
-let i = 1;
+    const values = [];
+    let i = 1;
 
-// chairman = all data, employee = only own
-if (role !== 'chairman' && userId) {
-  query += ` AND c.created_by = $${i}`;
-  values.push(userId);
-  i++;
-}
+    if (role !== 'chairman' && userId) {
+      query += ` AND c.created_by = $${i}`;
+      values.push(userId);
+      i++;
+    }
     if (search) {
       query += ` AND (name ILIKE $${i} OR email ILIKE $${i} OR company ILIKE $${i})`;
       values.push(`%${search}%`);
@@ -52,13 +50,10 @@ if (role !== 'chairman' && userId) {
       i++;
     }
 
-    query += ` ORDER BY created_at DESC`;
-console.log("CUSTOMER QUERY:");
-console.log(query);
-console.log(values);
+    query += ` ORDER BY c.created_at DESC`;
 
-const result = await pool.query(query, values);
-return result.rows;
+    const result = await pool.query(query, values);
+    return result.rows;
   },
 
   // Get single customer by ID
@@ -79,27 +74,27 @@ return result.rows;
 
   // Create new customer
   create: async (data) => {
-   const {
-  customer_id, name, email, phone, company,
-  service_type,
-  type, status, address, city, state,
-  pincode, gstin, notes, created_by
-} = data;
+    const {
+      customer_id, name, email, phone, company,
+      service_type,
+      type, status, address, city, state,
+      pincode, gstin, notes, created_by
+    } = data;
 
-const result = await pool.query(
-  `INSERT INTO customers
+    const result = await pool.query(
+      `INSERT INTO customers
 (customer_id, name, email, phone, company, service_type, type, status,
  address, city, state, pincode, gstin, notes, created_by)
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
 RETURNING *`,
-[
-  customer_id, name, email, phone, company,
-  service_type,
-  type, status,
-  address, city, state, pincode, gstin, notes,
-  created_by
-]
-);
+      [
+        customer_id, name, email, phone, company,
+        service_type,
+        type, status,
+        address, city, state, pincode, gstin, notes,
+        created_by
+      ]
+    );
     return result.rows[0];
   },
 
@@ -124,28 +119,36 @@ RETURNING *`,
 
   // Delete customer
   delete: async (id) => {
-  const result = await pool.query(
-    'DELETE FROM customers WHERE id = $1 RETURNING *', [id]
-  );
-  return result.rows[0];
-},
+    const result = await pool.query(
+      'DELETE FROM customers WHERE id = $1 RETURNING *', [id]
+    );
+    return result.rows[0];
+  },
 
-  // Get stats for top cards
- getStats: async (role, userId) => {
+  // ✅ FIXED: Get stats from latest approved invoices (not customers table)
+  getStats: async (role, userId) => {
     let query = `
       SELECT 
-        COUNT(*) as total_customers,
-        COUNT(CASE WHEN status='Active' THEN 1 END) as active_customers,
-        SUM(outstanding) as total_outstanding,
-        SUM(total_payments) as total_payments
-      FROM customers
+        COUNT(DISTINCT c.id)                                          AS total_customers,
+        COUNT(DISTINCT CASE WHEN c.status='Active' THEN c.id END)    AS active_customers,
+        COALESCE(SUM(latest.balance_amount), 0)                      AS total_outstanding,
+        COALESCE(SUM(latest.paid_amount), 0)                         AS total_payments
+      FROM customers c
+      LEFT JOIN (
+        SELECT DISTINCT ON (customer_id)
+          customer_id,
+          balance_amount,
+          paid_amount
+        FROM invoices
+        WHERE status = 'Approved'
+        ORDER BY customer_id, id DESC
+      ) latest ON c.id::text = latest.customer_id
     `;
-const vals = [];
-
-if (role !== 'chairman' && userId) {
-  query += ` WHERE created_by = $1`;
-  vals.push(userId);
-}
+    const vals = [];
+    if (role !== 'chairman' && userId) {
+      query += ` WHERE c.created_by = $1`;
+      vals.push(userId);
+    }
     const result = await pool.query(query, vals);
     return result.rows[0];
   }
