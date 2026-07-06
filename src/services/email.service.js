@@ -10,6 +10,22 @@ const emailService = {
       `https://vjc-invoice-backend.vercel.app/api/invoices/reject/${invoice.chairman_token}`;
 
     const html = `
+<style>
+  @media only screen and (max-width: 600px) {
+    .vjc-stack-table, .vjc-stack-table tr, .vjc-stack-table td {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .vjc-btn-wrap a {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      margin: 8px 0 !important;
+      text-align: center !important;
+    }
+  }
+</style>
 <div style="font-family:Arial,sans-serif;background:#f4f6f9;padding:20px;">
   <div style="max-width:900px;margin:auto;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #ddd;">
 
@@ -56,7 +72,7 @@ Please review the invoice details below before approving or rejecting it.
 
 <div style="padding:25px;">
 
-      <table style="width:100%;border-collapse:collapse;">
+      <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;">
         <tr>
           <td style="padding:10px;font-weight:bold;">Client Name</td>
           <td style="padding:10px;">${invoice.customer_name}</td>
@@ -178,7 +194,7 @@ border-radius:8px;
 
 </div>
 ` : ''}
-<div style="margin-top:35px;text-align:center;">
+<div class="vjc-btn-wrap" style="margin-top:35px;text-align:center;">
         <a href="${approveUrl}"
           style="background:#2e7d32;color:#fff;padding:14px 35px;
           text-decoration:none;border-radius:5px;font-size:16px;
@@ -270,14 +286,24 @@ Regards,
     const grandTotalWords = `${numberToWords(grandTotalNum)} Only`;
     const currency = invoice.currency || 'INR';
 
-    const html = `
+  const html = `
+<style>
+  @media only screen and (max-width: 600px) {
+    .vjc-stack-table, .vjc-stack-table tr, .vjc-stack-table td {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      text-align: left !important;
+    }
+  }
+</style>
 <div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
   <div style="max-width:760px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:4px;overflow:hidden;">
 
     <div style="height:5px;background:#1976d2;"></div>
 
     <!-- Header -->
-    <table style="width:100%;border-collapse:collapse;padding:0;">
+    <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;padding:0;">
       <tr>
 <td style="vertical-align:top;width:55%;padding:22px 0 0 28px;">
   <img
@@ -305,7 +331,7 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     </div>
 
     <!-- Bill To / Invoice meta -->
-    <table style="width:100%;border-collapse:collapse;padding:0 28px;">
+    <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;padding:0 28px;">
       <tr>
         <td style="vertical-align:top;width:55%;padding:0 0 0 28px;">
           <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:7px;">Bill To</div>
@@ -443,6 +469,16 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
     const totalAmount = Number(quote.total_amount || 0);
 
     const html = `
+<style>
+  @media only screen and (max-width: 600px) {
+    .vjc-stack-table, .vjc-stack-table tr, .vjc-stack-table td {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      text-align: left !important;
+    }
+  }
+</style>
 <div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
   <div style="max-width:600px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;">
 
@@ -461,7 +497,7 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
         Thank you for your interest in our services. Please find your quote details below.
       </div>
 
-      <table style="width:100%;border-collapse:collapse;font-size:13px;color:#333;margin-bottom:18px;">
+      <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;font-size:13px;color:#333;margin-bottom:18px;">
         <tr>
           <td style="padding:8px 10px;font-weight:700;">Quote Number</td>
           <td style="padding:8px 10px;text-align:right;">${quote.quote_number || quote.quote_id || '-'}</td>
@@ -587,6 +623,16 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
     const stageLabel  = stage === 'Overdue' ? '⚠️ Payment Overdue' : `🔔 ${stage}`;
 
     const html = `
+<style>
+  @media only screen and (max-width: 600px) {
+    .vjc-stack-table, .vjc-stack-table tr, .vjc-stack-table td {
+      display: block !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      text-align: left !important;
+    }
+  }
+</style>
 <div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
   <div style="max-width:600px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;">
 
@@ -611,7 +657,7 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
         Please make the payment at the earliest to avoid any service delays.
       </div>
 
-      <table style="width:100%;border-collapse:collapse;font-size:13px;color:#333;margin-bottom:18px;">
+      <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;font-size:13px;color:#333;margin-bottom:18px;">
         <tr>
           <td style="padding:8px 10px;font-weight:700;">Payment Reference</td>
           <td style="padding:8px 10px;text-align:right;">${payment.payment_no || '-'}</td>
