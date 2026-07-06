@@ -14,8 +14,15 @@ const customerFilter = role === 'chairman'
     pool.query(`SELECT COUNT(*) AS count FROM customers ${customerFilter}`),
     pool.query(`SELECT COUNT(*) AS count FROM invoices WHERE 1=1 ${filter}`),
 pool.query(`
-  SELECT COALESCE(SUM(paid_amount), 0) AS total
-  FROM invoices WHERE status = 'Approved' ${filter}
+  SELECT COALESCE(SUM(latest.balance_amount), 0) AS total
+  FROM (
+    SELECT DISTINCT ON (customer_id)
+      customer_id, balance_amount
+    FROM invoices
+    WHERE status = 'Approved' ${filter}
+    ORDER BY customer_id, id DESC
+  ) latest
+  WHERE latest.balance_amount > 0
 `),
     pool.query(`
       SELECT COALESCE(SUM(balance_amount), 0) AS total
