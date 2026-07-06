@@ -71,105 +71,55 @@ Please review the invoice details below before approving or rejecting it.
 </div>
 
 <div style="padding:25px;">
-
-      <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;">
-        <tr>
-          <td style="padding:10px;font-weight:bold;">Client Name</td>
-          <td style="padding:10px;">${invoice.customer_name}</td>
-
-          <td style="padding:10px;font-weight:bold;">Invoice Number</td>
-          <td style="padding:10px;">${invoice.invoice_number}</td>
-        </tr>
-
-        ${invoice.customer_gstin || invoice.customer_address ? `
-<tr style="background:#f8f9fa;">
-
-${invoice.customer_gstin ? `
-<td style="padding:10px;font-weight:bold;">GSTIN</td>
-<td style="padding:10px;">
-${invoice.customer_gstin}
-</td>
-` : `
-<td></td>
-<td></td>
-`}
-
-${invoice.customer_address ? `
-<td style="padding:10px;font-weight:bold;">Address</td>
-<td style="padding:10px;">
-${invoice.customer_address}
-</td>
-` : `
-<td></td>
-<td></td>
-`}
-
-</tr>
-` : ``}
-        <tr>
-          <td style="padding:10px;font-weight:bold;">Subtotal</td>
-          <td style="padding:10px;">
-            ₹${Number(invoice.subtotal || 0).toLocaleString('en-IN')}
-          </td>
-
-          <td style="padding:10px;font-weight:bold;">Paid Amount</td>
-          <td style="padding:10px;">
-            ₹${Number(invoice.paid_amount || 0).toLocaleString('en-IN')}
-          </td>
-        </tr>
-
-        <tr style="background:#f8f9fa;">
-          <td style="padding:10px;font-weight:bold;">Tax %</td>
-          <td style="padding:10px;">
-            ${invoice.tax_percent || 0}%
-          </td>
-
-          <td style="padding:10px;font-weight:bold;">Balance Amount</td>
-          <td style="padding:10px;color:red;font-weight:bold;">
-            ₹${Number(invoice.balance_amount || 0).toLocaleString('en-IN')}
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:10px;font-weight:bold;">Tax Amount</td>
-          <td style="padding:10px;">
-            ₹${Number(invoice.tax_amount || 0).toLocaleString('en-IN')}
-          </td>
-
-          <td style="padding:10px;font-weight:bold;">Due Date</td>
-          <td style="padding:10px;">
- ${invoice.due_date
- ? new Date(invoice.due_date).toLocaleDateString('en-GB',{
-      day:'2-digit',
-      month:'short',
-      year:'numeric'
-   })
- : '-'}
-          </td>
-        </tr>
-
-        <tr style="background:#f8f9fa;">
-          <td style="padding:10px;font-weight:bold;">GSTIN</td>
-          <td style="padding:10px;">
-            ${invoice.customer_gstin || '-'}
-          </td>
-
-          <td style="padding:10px;font-weight:bold;">Address</td>
-          <td style="padding:10px;">
-            ${invoice.customer_address || '-'}
-          </td>
-        </tr>
-
-       ${invoice.notes ? `
-<tr>
-  <td style="padding:10px;font-weight:bold;">Description</td>
-  <td colspan="3" style="padding:10px;">
-    ${invoice.notes}
-  </td>
-</tr>
-` : ``}
-     </table>
-
+  <table style="width:100%;border-collapse:collapse;font-size:14px;">
+    <tr style="background:#f8f9fa;">
+      <td style="padding:10px 14px;font-weight:700;width:40%;color:#444;">Client Name</td>
+      <td style="padding:10px 14px;">${invoice.customer_name}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Invoice Number</td>
+      <td style="padding:10px 14px;">${invoice.invoice_number}</td>
+    </tr>
+    ${invoice.customer_gstin ? `
+    <tr style="background:#f8f9fa;">
+      <td style="padding:10px 14px;font-weight:700;color:#444;">GSTIN</td>
+      <td style="padding:10px 14px;">${invoice.customer_gstin}</td>
+    </tr>` : ''}
+    ${invoice.customer_address ? `
+    <tr>
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Address</td>
+      <td style="padding:10px 14px;">${invoice.customer_address}</td>
+    </tr>` : ''}
+    <tr style="background:#f8f9fa;">
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Subtotal</td>
+      <td style="padding:10px 14px;">₹${Number(invoice.subtotal || 0).toLocaleString('en-IN')}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Paid Amount</td>
+      <td style="padding:10px 14px;color:#2e7d32;font-weight:700;">₹${Number(invoice.paid_amount || 0).toLocaleString('en-IN')}</td>
+    </tr>
+    <tr style="background:#f8f9fa;">
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Tax %</td>
+      <td style="padding:10px 14px;">${invoice.tax_percent || 0}%</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Balance Amount</td>
+      <td style="padding:10px 14px;color:#d32f2f;font-weight:700;">₹${Number(invoice.balance_amount || 0).toLocaleString('en-IN')}</td>
+    </tr>
+    <tr style="background:#f8f9fa;">
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Tax Amount</td>
+      <td style="padding:10px 14px;">₹${Number(invoice.tax_amount || 0).toLocaleString('en-IN')}</td>
+    </tr>
+    <tr>
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Due Date</td>
+      <td style="padding:10px 14px;">${invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '-'}</td>
+    </tr>
+    ${invoice.notes ? `
+    <tr style="background:#f8f9fa;">
+      <td style="padding:10px 14px;font-weight:700;color:#444;">Description</td>
+      <td style="padding:10px 14px;">${invoice.notes}</td>
+    </tr>` : ''}
+  </table>
 ${invoice.screenshot_base64 ? `
 <div style="margin-top:25px;">
 
@@ -194,20 +144,18 @@ border-radius:8px;
 
 </div>
 ` : ''}
-<div class="vjc-btn-wrap" style="margin-top:35px;text-align:center;">
-        <a href="${approveUrl}"
-          style="background:#2e7d32;color:#fff;padding:14px 35px;
-          text-decoration:none;border-radius:5px;font-size:16px;
-          margin-right:15px;">
-          ✅ APPROVE
-        </a>
-
-        <a href="${rejectUrl}"
-          style="background:#d32f2f;color:#fff;padding:14px 35px;
-          text-decoration:none;border-radius:5px;font-size:16px;">
-          ❌ REJECT
-        </a>
-      </div>
+<div style="margin-top:30px;text-align:center;">
+  <a href="${approveUrl}" style="display:inline-block;background:#2e7d32;color:#fff;
+    padding:14px 0;text-decoration:none;border-radius:6px;font-size:16px;
+    font-weight:700;width:45%;max-width:180px;margin:6px;">
+    ✅ APPROVE
+  </a>
+  <a href="${rejectUrl}" style="display:inline-block;background:#d32f2f;color:#fff;
+    padding:14px 0;text-decoration:none;border-radius:6px;font-size:16px;
+    font-weight:700;width:45%;max-width:180px;margin:6px;">
+    ❌ REJECT
+  </a>
+</div>
 
           </div>
 
