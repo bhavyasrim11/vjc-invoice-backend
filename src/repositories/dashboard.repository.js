@@ -1,32 +1,41 @@
 const pool = require('../config/db');
 
 const getKpis = async (role, userId) => {
-  const isChairman = role === 'chairman';
- const filter = role === 'chairman'
-  ? ''
-  : `AND created_by = ${userId}`;
+  const filter = role === 'chairman'
+    ? ''
+    : `AND created_by = ${userId}`;
 
-const customerFilter = role === 'chairman'
-  ? ''
-  : `WHERE created_by = ${userId}`;
+  const customerFilter = role === 'chairman'
+    ? ''
+    : `WHERE created_by = ${userId}`;
 
   const [customers, invoices, payments, outstanding] = await Promise.all([
     pool.query(`SELECT COUNT(*) AS count FROM customers ${customerFilter}`),
     pool.query(`SELECT COUNT(*) AS count FROM invoices WHERE 1=1 ${filter}`),
-pool.query(`
-  SELECT COALESCE(SUM(latest.balance_amount), 0) AS total
-  FROM (
-    SELECT DISTINCT ON (customer_id)
-      customer_id, balance_amount
-    FROM invoices
-    WHERE status = 'Approved' ${filter}
-    ORDER BY customer_id, id DESC
-  ) latest
-  WHERE latest.balance_amount > 0
-`),
+
+    // ✅ FIXED: latest approved invoice per customer — paid_amount
     pool.query(`
-      SELECT COALESCE(SUM(balance_amount), 0) AS total
-      FROM invoices WHERE status = 'Approved' AND balance_amount > 0 ${filter}
+      SELECT COALESCE(SUM(latest.paid_amount), 0) AS total
+      FROM (
+        SELECT DISTINCT ON (customer_id)
+          customer_id, paid_amount
+        FROM invoices
+        WHERE status = 'Approved' ${filter}
+        ORDER BY customer_id, id DESC
+      ) latest
+    `),
+
+    // ✅ FIXED: latest approved invoice per customer — balance_amount
+    pool.query(`
+      SELECT COALESCE(SUM(latest.balance_amount), 0) AS total
+      FROM (
+        SELECT DISTINCT ON (customer_id)
+          customer_id, balance_amount
+        FROM invoices
+        WHERE status = 'Approved' ${filter}
+        ORDER BY customer_id, id DESC
+      ) latest
+      WHERE latest.balance_amount > 0
     `),
   ]);
 
@@ -41,12 +50,12 @@ pool.query(`
 const getSalesExpensesOverview = async (role, userId) => {
   const isChairman = role === 'chairman';
   const filter = isChairman ? '' : `AND created_by = '${userId}'`;
-  // last 6 months: Sales (sales_invoices), Receipts (Paid amount), Expenses (expenses table)
+
   const result = await pool.query(`
     SELECT
       TO_CHAR(month_series, 'Mon') AS month,
       EXTRACT(MONTH FROM month_series) AS month_num,
-COALESCE((
+      COALESCE((
         SELECT SUM(grand_total) FROM invoices
         WHERE DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
         ${filter}
@@ -85,10 +94,10 @@ COALESCE((
 };
 
 const getRecentInvoices = async (role, userId) => {
-  const isChairman = role === 'chairman';
-const filter = role === 'chairman'
-  ? ''
-  : `WHERE created_by = ${userId}`;
+  const filter = role === 'chairman'
+    ? ''
+    : `WHERE created_by = ${userId}`;
+
   const result = await pool.query(`
     SELECT invoice_number, customer_name, grand_total, status
     FROM invoices
@@ -96,6 +105,7 @@ const filter = role === 'chairman'
     ORDER BY created_at DESC
     LIMIT 5
   `);
+
   return result.rows.map(r => ({
     invoiceNo: r.invoice_number,
     customerName: r.customer_name,
