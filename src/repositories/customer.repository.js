@@ -4,16 +4,24 @@ const customerRepository = {
 
   // Get all customers with filters
   getAll: async ({ search, status, type, userId, role }) => {
-    let query = `
+    // ✅ NEW — ఇది paste చేయి:
+let query = `
 SELECT
   c.*,
-  COALESCE(i.status,'Pending') AS invoice_status
+  COALESCE(i.status, 'Pending')   AS invoice_status,
+  COALESCE(i.balance_amount, 0)   AS outstanding,
+  COALESCE(i.paid_amount, 0)      AS total_payments,
+  i.created_at                     AS last_transaction
 FROM customers c
 LEFT JOIN (
   SELECT DISTINCT ON (customer_id)
     customer_id,
-    status
+    status,
+    balance_amount,
+    paid_amount,
+    created_at
   FROM invoices
+  WHERE status = 'Approved'
   ORDER BY customer_id, id DESC
 ) i
 ON c.id::text = i.customer_id
