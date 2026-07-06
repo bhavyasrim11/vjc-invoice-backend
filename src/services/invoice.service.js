@@ -34,7 +34,7 @@ const invoiceService = {
     // ✅ Customer outstanding update చేయి
    await pool.query(
   `UPDATE customers SET
-    outstanding = GREATEST(outstanding - $1 + $2, 0),
+    outstanding = outstanding + $2,
     total_payments = total_payments + $1,
     last_transaction = NOW()
    WHERE id = $3`,
