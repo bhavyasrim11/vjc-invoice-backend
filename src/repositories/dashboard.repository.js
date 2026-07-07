@@ -94,19 +94,28 @@ const getRecentInvoices = async (role, userId) => {
     : `WHERE created_by = ${userId}`;
 
   const result = await pool.query(`
-    SELECT invoice_number, customer_name, grand_total, paid_amount, status
-FROM invoices
-${filter}
-ORDER BY created_at DESC
-  `);
+  SELECT
+    i.invoice_number,
+    p.invoice_number AS original_invoice_number,
+    i.customer_name,
+    i.grand_total,
+    i.paid_amount,
+    i.status
+  FROM invoices i
+  LEFT JOIN invoices p
+    ON i.original_invoice_id = p.id
+  ${filter.replace("created_by", "i.created_by")}
+  ORDER BY i.created_at DESC
+`);
 
-  return result.rows.map(r => ({
-    invoiceNo:    r.invoice_number,
-    customerName: r.customer_name,
-    amount:       Number(r.grand_total),
-    paidAmount:   Number(r.paid_amount),
-    status:       r.status,
-  }));
+return result.rows.map(r => ({
+  invoiceNo:               r.invoice_number,
+  original_invoice_number: r.original_invoice_number,
+  customerName:            r.customer_name,
+  amount:                  Number(r.grand_total),
+  paidAmount:              Number(r.paid_amount),
+  status:                  r.status,
+}));
 };
 
 module.exports = { getKpis, getSalesExpensesOverview, getRecentInvoices };
