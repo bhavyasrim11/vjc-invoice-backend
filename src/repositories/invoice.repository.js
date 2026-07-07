@@ -3,16 +3,27 @@ const pool = require('../config/db');
 const invoiceRepository = {
 
   getAll: async ({ role, userId } = {}) => {
-    let query = 'SELECT * FROM invoices';
-    const vals = [];
-    if (role !== 'chairman' && userId) {
-      query += ' WHERE created_by = $1';
-      vals.push(userId);
-    }
-    query += ' ORDER BY created_at DESC';
-    const result = await pool.query(query, vals);
-    return result.rows;
-  },
+  let query = `
+    SELECT
+      i.*,
+      p.invoice_number AS original_invoice_number
+    FROM invoices i
+    LEFT JOIN invoices p
+      ON i.original_invoice_id = p.id
+  `;
+
+  const vals = [];
+
+  if (role !== 'chairman' && userId) {
+    query += ' WHERE i.created_by = $1';
+    vals.push(userId);
+  }
+
+  query += ' ORDER BY i.created_at DESC';
+
+  const result = await pool.query(query, vals);
+  return result.rows;
+},
 
   getByToken: async (token) => {
     const result = await pool.query(
