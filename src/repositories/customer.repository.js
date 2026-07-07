@@ -10,7 +10,7 @@ SELECT
   COALESCE(i.status, 'Pending')   AS invoice_status,
   COALESCE(i.balance_amount, 0)   AS outstanding,
   COALESCE(i.paid_amount, 0)      AS total_payments,
-  i.created_at                     AS last_transaction
+  i.created_at                     AS last_transaction,
    i.id                            AS last_invoice_id
 FROM customers c
 LEFT JOIN (
@@ -42,12 +42,12 @@ WHERE 1=1
       i++;
     }
     if (status && status !== 'All') {
-      query += ` AND status = $${i}`;
+      query += ` AND c.status = $${i}`;
       values.push(status);
       i++;
     }
     if (type && type !== 'All') {
-      query += ` AND type = $${i}`;
+      query += ` AND c.type = $${i}`;
       values.push(type);
       i++;
     }
