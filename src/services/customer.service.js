@@ -6,7 +6,14 @@ const customerService = {
   getAllCustomers: async (filters) => {
     const customers = await customerRepository.getAll(filters);
     const stats = await customerRepository.getStats(filters.role, filters.userId);
-    return { customers, stats };
+if (filters.role !== "chairman") {
+  customers.forEach((customer, index) => {
+    customer.display_customer_id =
+      "CUS" + String(index + 1).padStart(3, "0");
+  });
+}
+
+return { customers, stats };
   },
 
   getCustomerById: async (id) => {
