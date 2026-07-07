@@ -50,11 +50,12 @@ const getSalesExpensesOverview = async (role, userId) => {
     SELECT
       TO_CHAR(month_series, 'Mon') AS month,
       EXTRACT(MONTH FROM month_series) AS month_num,
-      COALESCE((
-        SELECT SUM(grand_total) FROM invoices
-        WHERE DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
-        ${filter}
-      ), 0) AS sales,
+COALESCE((
+  SELECT SUM(grand_total) FROM invoices
+  WHERE DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
+    AND original_invoice_id IS NULL
+  ${filter}
+), 0) AS sales,
       COALESCE((
         SELECT SUM(paid_amount) FROM invoices
         WHERE status = 'Approved' AND DATE_TRUNC('month', invoice_date) = DATE_TRUNC('month', month_series)
