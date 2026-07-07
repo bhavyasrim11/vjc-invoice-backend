@@ -15,14 +15,9 @@ const getKpis = async (role, userId) => {
 
     // ✅ FIXED: latest approved invoice per customer — paid_amount
     pool.query(`
-      SELECT COALESCE(SUM(latest.paid_amount), 0) AS total
-      FROM (
-        SELECT DISTINCT ON (customer_id)
-          customer_id, paid_amount
-        FROM invoices
-        WHERE status = 'Approved' ${filter}
-        ORDER BY customer_id, id DESC
-      ) latest
+     SELECT COALESCE(SUM(paid_amount), 0) AS total
+FROM invoices
+WHERE status = 'Approved' ${filter}
     `),
 
     // ✅ FIXED: latest approved invoice per customer — balance_amount
