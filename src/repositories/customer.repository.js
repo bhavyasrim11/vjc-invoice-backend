@@ -130,21 +130,35 @@ RETURNING *`,
   // ✅ FIXED: Get stats from latest approved invoices (not customers table)
   getStats: async (role, userId) => {
     let query = `
-      SELECT 
-        COUNT(DISTINCT c.id)                                          AS total_customers,
-        COUNT(DISTINCT CASE WHEN c.status='Active' THEN c.id END)    AS active_customers,
-        COALESCE(SUM(latest.balance_amount), 0)                      AS total_outstanding,
-        COALESCE(SUM(latest.paid_amount), 0)                         AS total_payments
-      FROM customers c
-      LEFT JOIN (
-        SELECT DISTINCT ON (customer_id)
-          customer_id,
-          balance_amount,
-          paid_amount
-        FROM invoices
-        WHERE status = 'Approved'
-        ORDER BY customer_id, id DESC
-      ) latest ON c.id::text = latest.customer_id
+     SELECT
+  COUNT(DISTINCT c.id)                                      AS total_customers,
+  COUNT(DISTINCT CASE WHEN c.status='Active' THEN c.id END) AS active_customers,
+
+  COALESCE(SUM(latest.balance_amount), 0)                   AS total_outstanding,
+
+  COALESCE(SUM(allinv.total_paid), 0)                       AS total_payments
+
+FROM customers c
+
+LEFT JOIN (
+  SELECT DISTINCT ON (customer_id)
+    customer_id,
+    balance_amount
+  FROM invoices
+  WHERE status = 'Approved'
+  ORDER BY customer_id, id DESC
+) latest
+ON c.id::text = latest.customer_id
+
+LEFT JOIN (
+  SELECT
+    customer_id,
+    SUM(paid_amount) AS total_paid
+  FROM invoices
+  WHERE status = 'Approved'
+  GROUP BY customer_id
+) allinv
+ON c.id::text = allinv.customer_id
     `;
     const vals = [];
     if (role !== 'chairman' && userId) {
