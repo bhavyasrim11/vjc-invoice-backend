@@ -11,9 +11,11 @@ SELECT
   COALESCE(i.balance_amount, 0)   AS outstanding,
   COALESCE(i.paid_amount, 0)      AS total_payments,
   i.created_at                     AS last_transaction
+   i.id                            AS last_invoice_id
 FROM customers c
 LEFT JOIN (
   SELECT DISTINCT ON (customer_id)
+    id,
     customer_id,
     status,
     balance_amount,
