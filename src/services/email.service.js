@@ -235,6 +235,7 @@ Regards,
     const currency = invoice.currency || 'INR';
 
   const html = `
+<head>
 <style>
   @media only screen and (max-width: 600px) {
     .vjc-stack-table, .vjc-stack-table tr, .vjc-stack-table td {
@@ -260,6 +261,8 @@ Regards,
     }
   }
 </style>
+</head>
+<body>
 <div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
   <div class="vjc-outer-pad" style="max-width:760px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:4px;overflow:hidden;">
 
@@ -414,6 +417,7 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
     </div>
   </div>
 </div>
+</body>
     `;
 
     await transporter.sendMail({
