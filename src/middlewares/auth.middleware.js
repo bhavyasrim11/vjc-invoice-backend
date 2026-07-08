@@ -22,4 +22,11 @@ const chairmanOnly = (req, res, next) => {
   next();
 };
 
-module.exports = { verifyToken, chairmanOnly };
+const servicesAccess = (req, res, next) => {
+  if (req.user?.role === "chairman" || req.user?.permissions?.services) {
+    return next();
+  }
+  return res.status(403).json({ success: false, message: "You don't have access to manage services" });
+};
+
+module.exports = { verifyToken, chairmanOnly, servicesAccess };
