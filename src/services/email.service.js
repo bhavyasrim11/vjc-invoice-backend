@@ -245,7 +245,7 @@ Regards,
       text-align: left !important;
     }
     .vjc-logo {
-      height: 55px !important;
+      height: 75px !important;
     }
     .vjc-label {
       white-space: normal !important;
@@ -304,7 +304,7 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
           <table style="font-size:12px;color:#333;border-collapse:collapse;">
 <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Name :</td><td style="padding:2px 0;">${invoice.customer_name || '-'}</td></tr>           <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Email :</td><td style="padding:2px 0;">${invoice.customer_email || '-'}</td></tr>
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Mobile :</td><td style="padding:2px 0;">${invoice.customer_phone || '-'}</td></tr>
-<tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Address :</td><td style="padding:2px 0;">${invoice.customer_address || '-'}</td></tr>            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Country :</td><td style="padding:2px 0;">${invoice.customer_country || 'India'}</td></tr>
+<tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Address :</td><td style="padding:2px 0;">${invoice.customer_address || '-'}</td></tr>
           </table>
         </td>
         <td style="vertical-align:top;width:45%;padding:0 28px 0 0;">
@@ -412,8 +412,8 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
     </div>
 
     <div style="background:#111;color:#ddd;text-align:center;font-size:11px;padding:13px 18px;">
-      VJC Immigration And Visa Consultants Pvt. Ltd., - Raheja Arcade, 16 &amp; 17, 5th Block,
-      Koramangala, Bengaluru, Karnataka 560095
+      VJC Immigration And Visa Consultants Pvt. Ltd., - 62/A, Sundari Reddy Bhavan, Ground Floor, Vengalrao Nagar,
+      S.R.Nagar, Hyderabad-500038, Telangana, India.
     </div>
   </div>
 </div>
