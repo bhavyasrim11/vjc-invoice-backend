@@ -15,4 +15,11 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken };
+const chairmanOnly = (req, res, next) => {
+  if (req.user?.role !== "chairman") {
+    return res.status(403).json({ success: false, message: "Chairman only" });
+  }
+  next();
+};
+
+module.exports = { verifyToken, chairmanOnly };

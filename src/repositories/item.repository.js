@@ -7,12 +7,6 @@ const itemRepository = {
     const values = [];
     let i = 1;
 
-    if (role !== 'chairman' && userId) {
-      query += ` AND created_by = $${i}`;
-      values.push(userId);
-      i++;
-    }
-
     if (search) {
       query += ` AND (service_name ILIKE $${i} OR category ILIKE $${i} OR country ILIKE $${i})`;
       values.push(`%${search}%`);
@@ -83,9 +77,7 @@ const itemRepository = {
   },
 
   getStats: async (role, userId) => {
-    const whereClause = (role !== 'chairman' && userId)
-      ? `WHERE created_by = '${userId}'`
-      : '';
+    const whereClause = '';
     const itemResult = await pool.query(`
       SELECT
         COUNT(*) as total_items,
@@ -96,13 +88,11 @@ const itemRepository = {
   SELECT COALESCE(SUM(total_amount), 0) AS total_revenue
   FROM invoices
   WHERE status = 'Approved'
-  ${role !== 'chairman' && userId ? `AND created_by = '${userId}'` : ''}
 `);
 const mostSoldResult = await pool.query(`
   SELECT service_type
   FROM invoices
   WHERE status = 'Approved'
-  ${role !== 'chairman' && userId ? `AND created_by = '${userId}'` : ''}
   GROUP BY service_type
   ORDER BY COUNT(*) DESC
   LIMIT 1
