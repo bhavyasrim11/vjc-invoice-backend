@@ -50,7 +50,7 @@ const invoiceService = {
     let customerDetails = {};
     try {
       const custRes = await pool.query(
-        `SELECT customer_id, phone, address, city, state, gstin, country
+        `SELECT customer_id, phone, address, city, state, gstin
          FROM customers WHERE id = $1`,
         [approved.customer_id]
       );

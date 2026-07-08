@@ -243,10 +243,25 @@ Regards,
       box-sizing: border-box !important;
       text-align: left !important;
     }
+    .vjc-logo {
+      height: 55px !important;
+    }
+    .vjc-label {
+      white-space: normal !important;
+    }
+    .vjc-outer-pad {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+  }
+  @media only screen and (min-width: 601px) and (max-width: 820px) {
+    .vjc-logo {
+      height: 80px !important;
+    }
   }
 </style>
 <div style="font-family:Arial,Helvetica,sans-serif;background:#eef1f4;padding:20px;">
-  <div style="max-width:760px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:4px;overflow:hidden;">
+  <div class="vjc-outer-pad" style="max-width:760px;margin:auto;background:#fff;border:1px solid #e2e2e2;border-radius:4px;overflow:hidden;">
 
     <div style="height:5px;background:#1976d2;"></div>
 
@@ -257,7 +272,8 @@ Regards,
   <img
 src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     alt="VJC Overseas"
-    style="height:70px;display:block;"
+    class="vjc-logo"
+    style="height:100px;display:block;"
   />
 </td>
         <td style="vertical-align:top;width:45%;text-align:right;padding:22px 28px 0 0;">
@@ -284,20 +300,18 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
         <td style="vertical-align:top;width:55%;padding:0 0 0 28px;">
           <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:7px;">Bill To</div>
           <table style="font-size:12px;color:#333;border-collapse:collapse;">
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Name :</td><td style="padding:2px 0;">${invoice.customer_name || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Email :</td><td style="padding:2px 0;">${invoice.customer_email || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Mobile :</td><td style="padding:2px 0;">${invoice.customer_phone || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Address :</td><td style="padding:2px 0;">${invoice.customer_address || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Country :</td><td style="padding:2px 0;">${invoice.customer_country || 'India'}</td></tr>
+<tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Name :</td><td style="padding:2px 0;">${invoice.customer_name || '-'}</td></tr>           <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Email :</td><td style="padding:2px 0;">${invoice.customer_email || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Mobile :</td><td style="padding:2px 0;">${invoice.customer_phone || '-'}</td></tr>
+<tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Address :</td><td style="padding:2px 0;">${invoice.customer_address || '-'}</td></tr>            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Country :</td><td style="padding:2px 0;">${invoice.customer_country || 'India'}</td></tr>
           </table>
         </td>
         <td style="vertical-align:top;width:45%;padding:0 28px 0 0;">
           <table style="font-size:12px;color:#333;border-collapse:collapse;margin-left:auto;">
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Client ID :</td><td style="padding:2px 0;text-align:right;">${invoice.customer_id || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Visa Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Number :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_number || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Date :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_date || '-'}</td></tr>
-            <tr><td style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.notes || invoice.service_type || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Client ID :</td><td style="padding:2px 0;text-align:right;">${invoice.customer_id || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Visa Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Number :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_number || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Date :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_date || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.notes || invoice.service_type || '-'}</td></tr>
           </table>
         </td>
       </tr>
