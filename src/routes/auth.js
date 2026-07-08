@@ -262,7 +262,12 @@ if (!user.plain_password) {
 
   // ── PUT /api/auth/employees/:id ── Update employee ───────
   router.put("/employees/:id", auth, chairmanOnly, async (req, res) => {
-    const { permissions, status, salary } = req.body;
+    const {
+      permissions, status, salary,
+      name, email, department, role, location,
+      bank_account, ifsc_code, pan_number, date_of_birth, date_of_joining,
+      paid_leaves, new_password,
+    } = req.body;
     const updates = [];
     const vals = [];
     let idx = 1;
@@ -278,6 +283,57 @@ if (!user.plain_password) {
     if (salary !== undefined) {
       updates.push(`salary = $${idx++}`);
       vals.push(salary);
+    }
+    if (name !== undefined) {
+      updates.push(`name = $${idx++}`);
+      vals.push(name);
+    }
+    if (email !== undefined) {
+      updates.push(`email = $${idx++}`);
+      vals.push(email);
+    }
+    if (department !== undefined) {
+      updates.push(`department = $${idx++}`);
+      vals.push(department);
+    }
+    if (role !== undefined) {
+      updates.push(`role = $${idx++}`);
+      vals.push(role);
+    }
+    if (location !== undefined) {
+      updates.push(`location = $${idx++}`);
+      vals.push(location);
+    }
+    if (bank_account !== undefined) {
+      updates.push(`bank_account = $${idx++}`);
+      vals.push(bank_account);
+    }
+    if (ifsc_code !== undefined) {
+      updates.push(`ifsc_code = $${idx++}`);
+      vals.push(ifsc_code);
+    }
+    if (pan_number !== undefined) {
+      updates.push(`pan_number = $${idx++}`);
+      vals.push(pan_number);
+    }
+    if (date_of_birth !== undefined) {
+      updates.push(`date_of_birth = $${idx++}`);
+      vals.push(date_of_birth);
+    }
+    if (date_of_joining !== undefined) {
+      updates.push(`date_of_joining = $${idx++}`);
+      vals.push(date_of_joining);
+    }
+    if (paid_leaves !== undefined) {
+      updates.push(`paid_leaves = $${idx++}`);
+      vals.push(paid_leaves);
+    }
+    if (new_password) {
+      const hash = bcrypt.hashSync(new_password, 10);
+      updates.push(`password_hash = $${idx++}`);
+      vals.push(hash);
+      updates.push(`plain_password = $${idx++}`);
+      vals.push(new_password);
     }
 
     if (updates.length === 0)
@@ -295,7 +351,6 @@ if (!user.plain_password) {
       res.status(500).json({ success: false });
     }
   });
-
   // ── DELETE /api/auth/employees/:id ───────────────────────
   router.delete("/employees/:id", auth, chairmanOnly, async (req, res) => {
     try {
