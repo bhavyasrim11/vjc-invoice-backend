@@ -273,7 +273,7 @@ Regards,
 src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     alt="VJC Overseas"
     class="vjc-logo"
-    style="height:100px;display:block;"
+    style="height:70px;display:block;margin:0;padding:0;"
   />
 </td>
         <td style="vertical-align:top;width:45%;text-align:right;padding:22px 28px 0 0;">
@@ -291,9 +291,8 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     </table>
 
     <div style="padding:0 28px;">
-      <hr style="border:none;border-top:1px solid #e6e6e6;margin:14px 0 16px 0;" />
+      <hr style="border:none;border-top:1px solid #e6e6e6;margin:4px 0 12px 0;" />
     </div>
-
     <!-- Bill To / Invoice meta -->
     <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;padding:0 28px;">
       <tr>
