@@ -3,15 +3,8 @@ const pool = require('../config/db');
 const customerRepository = {
 
   // Get all customers with filters
-  getAll: async ({ search, status, type, userId, role }) => {
-    let query = `
-SELECT
-  c.*,
-  COALESCE(i.status, 'Pending')   AS invoice_status,
-  COALESCE(i.balance_amount, 0)   AS outstanding,
-  COALESCE(i.paid_amount, 0)      AS total_payments,
-  i.created_at                     AS last_transaction,
-   i.id                            AS last_invoice_id
+  getAll: async ({ search, status, type, userId, role, page = 1, limit = 25 }) => {
+    let baseQuery = `
 FROM customers c
 LEFT JOIN (
   SELECT DISTINCT ON (customer_id)
@@ -32,30 +25,47 @@ WHERE 1=1
     let i = 1;
 
     if (role !== 'chairman' && userId) {
-      query += ` AND c.created_by = $${i}`;
+      baseQuery += ` AND c.created_by = $${i}`;
       values.push(userId);
       i++;
     }
     if (search) {
-      query += ` AND (name ILIKE $${i} OR email ILIKE $${i} OR company ILIKE $${i})`;
+      baseQuery += ` AND (name ILIKE $${i} OR email ILIKE $${i} OR company ILIKE $${i})`;
       values.push(`%${search}%`);
       i++;
     }
     if (status && status !== 'All') {
-      query += ` AND c.status = $${i}`;
+      baseQuery += ` AND c.status = $${i}`;
       values.push(status);
       i++;
     }
     if (type && type !== 'All') {
-      query += ` AND c.type = $${i}`;
+      baseQuery += ` AND c.type = $${i}`;
       values.push(type);
       i++;
     }
 
-    query += ` ORDER BY c.created_at DESC`;
+    // ── Count total (for pagination) ──
+    const countResult = await pool.query(`SELECT COUNT(*) ${baseQuery}`, values);
+    const total = parseInt(countResult.rows[0].count, 10);
 
-    const result = await pool.query(query, values);
-    return result.rows;
+    // ── Paginated data ──
+    const dataQuery = `
+SELECT
+  c.*,
+  COALESCE(i.status, 'Pending')   AS invoice_status,
+  COALESCE(i.balance_amount, 0)   AS outstanding,
+  COALESCE(i.paid_amount, 0)      AS total_payments,
+  i.created_at                     AS last_transaction,
+   i.id                            AS last_invoice_id
+${baseQuery}
+ORDER BY c.created_at DESC
+LIMIT $${i} OFFSET $${i + 1}
+`;
+    const offset = (page - 1) * limit;
+    const result = await pool.query(dataQuery, [...values, limit, offset]);
+
+    return { rows: result.rows, total };
   },
 
   // Get single customer by ID

@@ -4,7 +4,7 @@ const { generateCustomerId } = require('../models/customer');
 const customerService = {
 
   getAllCustomers: async (filters) => {
-    const customers = await customerRepository.getAll(filters);
+    const { rows: customers, total } = await customerRepository.getAll(filters);
     const stats = await customerRepository.getStats(filters.role, filters.userId);
 if (filters.role !== "chairman") {
   customers.forEach((customer, index) => {
@@ -13,7 +13,11 @@ if (filters.role !== "chairman") {
   });
 }
 
-return { customers, stats };
+const page  = Number(filters.page)  || 1;
+const limit = Number(filters.limit) || 25;
+const totalPages = Math.ceil(total / limit);
+
+return { customers, stats, total, page, totalPages };
   },
 
   getCustomerById: async (id) => {

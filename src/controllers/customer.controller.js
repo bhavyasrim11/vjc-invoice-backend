@@ -5,10 +5,10 @@ const customerController = {
   // GET /api/customers
   getAll: async (req, res) => {
     try {
-      const { search, status, type } = req.query;
+      const { search, status, type, page, limit } = req.query;
       const role   = req.user?.role;
       const userId = req.user?.id;
-      const data = await customerService.getAllCustomers({ search, status, type, role, userId });
+      const data = await customerService.getAllCustomers({ search, status, type, role, userId, page, limit });
       res.json({ success: true, ...data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
