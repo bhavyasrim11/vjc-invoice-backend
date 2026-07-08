@@ -268,15 +268,15 @@ Regards,
     <!-- Header -->
     <table class="vjc-stack-table" style="width:100%;border-collapse:collapse;padding:0;">
       <tr>
-<td style="vertical-align:top;width:55%;padding:22px 0 0 28px;">
+<td style="vertical-align:top;width:30%;padding:22px 0 0 28px;">
   <img
 src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     alt="VJC Overseas"
     class="vjc-logo"
-    style="height:70px;display:block;margin:0;padding:0;"
+    style="height:90px;display:block;margin:0;padding:0;"
   />
 </td>
-        <td style="vertical-align:top;width:45%;text-align:right;padding:22px 28px 0 0;">
+        <td style="vertical-align:top;width:70%;text-align:right;padding:22px 28px 0 0;">
           <div style="font-size:24px;font-weight:800;color:#111;letter-spacing:0.5px;">INVOICE</div>
           <div style="font-size:12.5px;font-weight:700;color:#222;margin-top:5px;">
             VJC Immigration And Visa Consultants Pvt. Ltd.,
@@ -305,7 +305,7 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
           </table>
         </td>
         <td style="vertical-align:top;width:45%;padding:0 28px 0 0;">
-          <table style="font-size:12px;color:#333;border-collapse:collapse;margin-left:auto;">
+          <table class="vjc-stack-table" style="font-size:12px;color:#333;border-collapse:collapse;margin-left:auto;">
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Client ID :</td><td style="padding:2px 0;text-align:right;">${invoice.customer_id || '-'}</td></tr>
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Visa Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Number :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_number || '-'}</td></tr>
