@@ -82,6 +82,20 @@ const invoiceController = {
       `);
     }
   },
+
+  downloadPdf: async (req, res) => {
+    try {
+      const { pdfBuffer, invoice_number } = await invoiceService.getInvoicePdfBuffer(req.params.id);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="Invoice-${invoice_number}.pdf"`,
+        'Content-Length': pdfBuffer.length,
+      });
+      res.send(pdfBuffer);
+    } catch (err) {
+      res.status(400).json({ success: false, message: err.message });
+    }
+  },
 };
 
 module.exports = invoiceController;

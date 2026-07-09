@@ -1,6 +1,7 @@
 const invoiceRepository = require('../repositories/invoice.repository');
 const { generateInvoiceNumber, generateToken } = require('../models/invoice');
 const emailService = require('./email.service');
+const pdfService = require('./pdf.service');
 const pool = require('../config/db');
 
 const invoiceService = {
@@ -83,6 +84,42 @@ const invoiceService = {
     if (!invoice) throw new Error('Invalid token');
     if (invoice.status !== 'Pending') throw new Error('Already processed');
     return await invoiceRepository.reject(token);
+  },
+
+  // ─── NEW: Dashboard "Download PDF" ───────────────────────
+  getInvoicePdfBuffer: async (invoiceId) => {
+    const invoice = await invoiceRepository.getById(invoiceId);
+    if (!invoice) throw new Error('Invoice not found');
+
+    let customerDetails = {};
+    try {
+      const custRes = await pool.query(
+        `SELECT customer_id, phone, address, city, state, gstin
+         FROM customers WHERE id = $1`,
+        [invoice.customer_id]
+      );
+      if (custRes.rows.length > 0) {
+        customerDetails = custRes.rows[0];
+      }
+    } catch (err) {
+      console.log('⚠️ Could not fetch customer details for PDF:', err.message);
+    }
+
+    const payload = {
+      ...invoice,
+      customer_id: customerDetails.customer_id || invoice.customer_id,
+      customer_phone: customerDetails.phone || invoice.customer_phone,
+      customer_address: customerDetails.address
+        ? `${customerDetails.address}${customerDetails.city ? ', ' + customerDetails.city : ''}${customerDetails.state ? ', ' + customerDetails.state : ''}`
+        : invoice.customer_address,
+      customer_gstin: customerDetails.gstin || invoice.customer_gstin,
+      customer_country: customerDetails.country || invoice.customer_country || 'India',
+    };
+
+    const html = emailService.buildClientInvoiceHtml(payload);
+    const pdfBuffer = await pdfService.generatePdfFromHtml(html);
+
+    return { pdfBuffer, invoice_number: invoice.invoice_number };
   },
 };
 
