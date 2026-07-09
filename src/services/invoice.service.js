@@ -1,7 +1,7 @@
 const invoiceRepository = require('../repositories/invoice.repository');
 const { generateInvoiceNumber, generateToken } = require('../models/invoice');
 const emailService = require('./email.service');
-const pdfService = require('./pdf.service');
+
 const pool = require('../config/db');
 
 const invoiceService = {
@@ -88,6 +88,7 @@ const invoiceService = {
 
   // ─── NEW: Dashboard "Download PDF" ───────────────────────
   getInvoicePdfBuffer: async (invoiceId) => {
+     const pdfService = require('./pdf.service'); 
     const invoice = await invoiceRepository.getById(invoiceId);
     if (!invoice) throw new Error('Invoice not found');
 
