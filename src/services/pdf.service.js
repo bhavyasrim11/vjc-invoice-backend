@@ -1,14 +1,19 @@
 const chromium = require('@sparticuz/chromium');
 const puppeteer = require('puppeteer-core');
 
+chromium.setGraphicsMode = false;
+
 const pdfService = {
   generatePdfFromHtml: async (html) => {
+    const executablePath = await chromium.executablePath();
+    
     const browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath,
       headless: chromium.headless,
     });
+
 
     try {
       const page = await browser.newPage();
