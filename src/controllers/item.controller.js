@@ -4,16 +4,15 @@ const itemController = {
 
   getAll: async (req, res) => {
     try {
-      const { search, status, category } = req.query;
+      const { search, status, category, page, limit } = req.query;
       const role   = req.user?.role;
       const userId = req.user?.id;
-      const data = await itemService.getAllItems({ search, status, category, role, userId });
+      const data = await itemService.getAllItems({ search, status, category, role, userId, page, limit });
       res.json({ success: true, ...data });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
   },
-
   getById: async (req, res) => {
     try {
       const item = await itemService.getItemById(req.params.id);

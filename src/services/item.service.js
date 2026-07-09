@@ -3,9 +3,13 @@ const { generateItemId } = require('../models/item');
 
 const itemService = {
 
-  getAllItems: async (filters) => {
-    const items = await itemRepository.getAll(filters);
-const stats = await itemRepository.getStats(filters.role, filters.userId);    return { items, stats };
+ getAllItems: async (filters) => {
+    const { rows: items, total } = await itemRepository.getAll(filters);
+const stats = await itemRepository.getStats(filters.role, filters.userId);
+    const page  = Number(filters.page)  || 1;
+    const limit = Number(filters.limit) || 25;
+    const totalPages = Math.ceil(total / limit);
+    return { items, stats, total, page, totalPages };
   },
 
   getItemById: async (id) => {

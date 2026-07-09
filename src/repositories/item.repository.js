@@ -2,30 +2,35 @@ const pool = require('../config/db');
 
 const itemRepository = {
 
-  getAll: async ({ search, status, category, role, userId }) => {
-    let query = 'SELECT * FROM items WHERE 1=1';
+  getAll: async ({ search, status, category, role, userId, page = 1, limit = 25 }) => {
+    let baseQuery = ' FROM items WHERE 1=1';
     const values = [];
     let i = 1;
 
     if (search) {
-      query += ` AND (service_name ILIKE $${i} OR category ILIKE $${i} OR country ILIKE $${i})`;
+      baseQuery += ` AND (service_name ILIKE $${i} OR category ILIKE $${i} OR country ILIKE $${i})`;
       values.push(`%${search}%`);
       i++;
     }
     if (status && status !== 'All') {
-      query += ` AND status = $${i}`;
+      baseQuery += ` AND status = $${i}`;
       values.push(status);
       i++;
     }
     if (category && category !== 'All') {
-      query += ` AND category = $${i}`;
+      baseQuery += ` AND category = $${i}`;
       values.push(category);
       i++;
     }
 
-    query += ' ORDER BY created_at DESC';
-    const result = await pool.query(query, values);
-    return result.rows;
+    const countResult = await pool.query(`SELECT COUNT(*)${baseQuery}`, values);
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    const offset = (page - 1) * limit;
+    const dataQuery = `SELECT *${baseQuery} ORDER BY created_at DESC LIMIT $${i} OFFSET $${i + 1}`;
+    const result = await pool.query(dataQuery, [...values, limit, offset]);
+
+    return { rows: result.rows, total };
   },
 
   getById: async (id) => {

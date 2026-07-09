@@ -27,20 +27,23 @@ return { customers, stats, total, page, totalPages };
   },
 
   createCustomer: async (data) => {
-    // Check duplicate email
-    const existing = await customerRepository.getAll({
-  search: data.email,
-  role: 'chairman',  // ← always check all customers for duplicate email
-  userId: null,
-});
+  // Check duplicate email
+  const { rows: existing } = await customerRepository.getAll({
+    search: data.email,
+    role: 'chairman', // always check all customers for duplicate email
+    userId: null,
+  });
 
-const emailExists = existing.find(c => c.email === data.email);
-    if (emailExists) throw new Error('Email already exists');
+  const emailExists = existing.find(
+    c => c.email?.toLowerCase() === data.email?.toLowerCase()
+  );
 
-    // Auto-generate customer_id
-    const customer_id = await generateCustomerId();
-    return await customerRepository.create({ ...data, customer_id });
-  },
+  if (emailExists) throw new Error('Email already exists');
+
+  // Auto-generate customer_id
+  const customer_id = await generateCustomerId();
+  return await customerRepository.create({ ...data, customer_id });
+},
 
   updateCustomer: async (id, data) => {
     const customer = await customerRepository.getById(id);

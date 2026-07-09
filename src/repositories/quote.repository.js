@@ -1,27 +1,30 @@
 const pool = require('../config/db');
 
-const getAllQuotes = async ({ role, userId } = {}) => {
-  let query = 'SELECT * FROM quotes';
+const getAllQuotes = async ({ role, userId, page = 1, limit = 25 } = {}) => {
+  let baseQuery = ' FROM quotes';
   const vals = [];
 
 if (role !== 'chairman' && userId) {
-  query += ' WHERE created_by = $1';
+  baseQuery += ' WHERE created_by = $1';
   vals.push(userId);
 }
 
+const countResult = await pool.query(`SELECT COUNT(*)${baseQuery}`, vals);
+const total = parseInt(countResult.rows[0].count, 10);
 
-query += ' ORDER BY id DESC';
+const offset = (page - 1) * limit;
+const paramIndex = vals.length + 1;
+const dataQuery = `SELECT *${baseQuery} ORDER BY id DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
 
 console.log("ROLE:", role);
 console.log("USER ID:", userId);
-console.log("QUERY:", query);
-console.log("VALUES:", vals);
+console.log("QUERY:", dataQuery);
 
-const result = await pool.query(query, vals);
+const result = await pool.query(dataQuery, [...vals, limit, offset]);
 
 console.log("QUOTE RESULT:", result.rows);
 
-return result.rows;
+return { rows: result.rows, total };
 };
 const getQuoteById = async (id) => {
   const result = await pool.query(

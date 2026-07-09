@@ -36,8 +36,12 @@ const getQuotes = async (req, res) => {
   try {
     const role   = req.user?.role;
     const userId = req.user?.id;
-    const quotes = await quoteRepo.getAllQuotes({ role, userId });
-    res.json({ success: true, data: quotes });
+    const { page, limit } = req.query;
+    const { rows: quotes, total } = await quoteRepo.getAllQuotes({ role, userId, page, limit });
+    const pageNum  = Number(page)  || 1;
+    const limitNum = Number(limit) || 25;
+    const totalPages = Math.ceil(total / limitNum);
+    res.json({ success: true, data: quotes, total, page: pageNum, totalPages });
   } catch (err) {
     console.error("GET QUOTES ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
