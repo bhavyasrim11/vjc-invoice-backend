@@ -1,11 +1,11 @@
 const pool = require('../config/db');
 
 const getKpis = async (role, userId) => {
-  const filter = role === 'chairman'
+  const filter = (role === 'chairman' || role === 'mis-executive')
     ? ''
     : `AND created_by = ${userId}`;
 
-  const customerFilter = role === 'chairman'
+  const customerFilter = (role === 'chairman' || role === 'mis-executive')
     ? ''
     : `WHERE created_by = ${userId}`;
 
@@ -43,7 +43,7 @@ WHERE status = 'Approved' ${filter}
 };
 
 const getSalesExpensesOverview = async (role, userId) => {
-  const isChairman = role === 'chairman';
+  const isChairman = (role === 'chairman' || role === 'mis-executive');
   const filter = isChairman ? '' : `AND created_by = '${userId}'`;
 
   const result = await pool.query(`
@@ -90,7 +90,7 @@ COALESCE((
 };
 
 const getRecentInvoices = async (role, userId) => {
-  const filter = role === 'chairman'
+const filter = (role === 'chairman' || role === 'mis-executive')
     ? ''
     : `WHERE created_by = ${userId}`;
 
