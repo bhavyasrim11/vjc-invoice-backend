@@ -311,10 +311,9 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
         <td style="vertical-align:top;width:45%;padding:0 28px 0 0;">
           <table class="vjc-stack-table" style="font-size:12px;color:#333;border-collapse:collapse;margin-left:auto;">
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Client ID :</td><td style="padding:2px 0;text-align:right;">${invoice.customer_id || '-'}</td></tr>
-            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Visa Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Number :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_number || '-'}</td></tr>
-            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Date :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_date || '-'}</td></tr>
-            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.notes || invoice.service_type || '-'}</td></tr>
+<tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Date :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString("en-GB").replace(/\//g, "-") : "-"}</td></tr>            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.notes || invoice.service_type || '-'}</td></tr>
           </table>
         </td>
       </tr>
@@ -552,9 +551,9 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
         <td style="vertical-align:top;width:45%;padding:0 28px 0 0;">
           <table class="vjc-stack-table" style="font-size:12px;color:#333;border-collapse:collapse;margin-left:auto;">
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Client ID :</td><td style="padding:2px 0;text-align:right;">${invoice.customer_id || '-'}</td></tr>
-            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Visa Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
+            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.service_type || '-'}</td></tr>
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Number :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_number || '-'}</td></tr>
-            <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Date :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_date || '-'}</td></tr>
+           <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;">Invoice Date :</td><td style="padding:2px 0;text-align:right;">${invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString("en-GB").replace(/\//g, "-") : "-"}</td></tr>
             <tr><td class="vjc-label" style="font-weight:700;padding:2px 6px 2px 0;white-space:nowrap;vertical-align:top;">Service Type :</td><td style="padding:2px 0;text-align:right;">${invoice.notes || invoice.service_type || '-'}</td></tr>
           </table>
         </td>
@@ -711,7 +710,10 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
         </tr>
         <tr style="background:#f8f9fa;">
           <td style="padding:8px 10px;font-weight:700;">Quote Date</td>
-          <td style="padding:8px 10px;text-align:right;">${quote.quote_date || '-'}</td>
+          <td style="padding:8px 10px;text-align:right;">${quote.quote_date
+  ? new Date(quote.quote_date).toLocaleDateString("en-GB").replace(/\//g, "-")
+  : "-"
+}</td>
         </tr>
         <tr>
           <td style="padding:8px 10px;font-weight:700;">Valid Until</td>
@@ -876,7 +878,10 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
         <tr>
           <td style="padding:8px 10px;font-weight:700;">Due Date</td>
           <td style="padding:8px 10px;text-align:right;color:#d32f2f;font-weight:700;">
-            ${payment.due_date ? String(payment.due_date).slice(0, 10) : '-'}
+ ${payment.due_date
+  ? new Date(payment.due_date).toLocaleDateString("en-GB").replace(/\//g, "-")
+  : "-"
+}
           </td>
         </tr>
       </table>
