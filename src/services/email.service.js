@@ -195,6 +195,7 @@ Regards,
   sendClientInvoiceMail: async (invoice) => {
     // ── derive CGST / SGST split (matches the PDF invoice template) ────────
     const taxAmountTotal = Number(invoice.tax_amount || 0);
+const isIGST = (invoice.tax_type || "CGST_SGST") === "IGST";
     const halfTaxPercent = (Number(invoice.tax_percent || 0) / 2).toFixed(0);
     const cgstAmount = (taxAmountTotal / 2);
     const sgstAmount = (taxAmountTotal / 2);
@@ -336,6 +337,14 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
   </td>
 </tr>
 
+${isIGST ? `
+<tr>
+  <td style="padding:4px 0;color:#333;font-weight:600;">IGST (${invoice.tax_percent || 18}%) :</td>
+  <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
+    INR ${taxAmountTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </td>
+</tr>
+` : `
 <tr>
   <td style="padding:4px 0;color:#333;font-weight:600;">CGST (${halfTaxPercent}%) :</td>
   <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
@@ -349,6 +358,7 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     INR ${sgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
   </td>
 </tr>
+`}
         ${Number(invoice.paid_amount || 0) > 0 ? `
         <tr style="background:#f0fdf4;">
           <td style="padding:4px 0 4px 6px;color:#16a34a;font-weight:700;">Paid Amount:</td>
@@ -430,6 +440,7 @@ INR ${Number(invoice.balance_amount).toLocaleString('en-IN', { minimumFractionDi
   },
   buildClientInvoiceHtml: (invoice) => {
     const taxAmountTotal = Number(invoice.tax_amount || 0);
+const isIGST = invoice.tax_type === "IGST";
     const halfTaxPercent = (Number(invoice.tax_percent || 0) / 2).toFixed(0);
     const cgstAmount = (taxAmountTotal / 2);
     const sgstAmount = (taxAmountTotal / 2);
@@ -566,6 +577,14 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
   </td>
 </tr>
 
+${isIGST ? `
+<tr>
+  <td style="padding:4px 0;color:#333;font-weight:600;">IGST (${invoice.tax_percent || 18}%) :</td>
+  <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
+    INR ${taxAmountTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+  </td>
+</tr>
+` : `
 <tr>
   <td style="padding:4px 0;color:#333;font-weight:600;">CGST (${halfTaxPercent}%) :</td>
   <td style="padding:4px 0;text-align:right;font-weight:700;color:#222;">
@@ -579,6 +598,7 @@ src="https://vjc-invoice-backend.vercel.app/vjc-overseas-logo.png"
     INR ${sgstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
   </td>
 </tr>
+`}
         ${Number(invoice.paid_amount || 0) > 0 ? `
         <tr style="background:#f0fdf4;">
           <td style="padding:4px 0 4px 6px;color:#16a34a;font-weight:700;">Paid Amount:</td>

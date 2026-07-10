@@ -53,6 +53,7 @@ getById: async (id) => {
       reference_no,
       subtotal,
       tax_percent,
+        tax_type,      
       tax_amount,
       total_amount,
       discount,
@@ -72,15 +73,19 @@ getById: async (id) => {
    `INSERT INTO invoices
   (invoice_number, customer_id, customer_name, customer_email,
    items, invoice_type, currency, invoice_date, payment_mode, reference_no,
-   subtotal, tax_percent, tax_amount, total_amount, discount,
+subtotal, tax_percent, tax_type, tax_amount, total_amount, discount,
    grand_total, paid_amount, balance_amount,
    due_date, service_type, state_by, notes, chairman_token, status, created_by, screenshot_base64,  original_invoice_id)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,'Pending',$24,$25,$26)
+      VALUES (
+$1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
+$11,$12,$13,$14,$15,$16,$17,$18,
+$19,$20,$21,$22,$23,$24,'Pending',$25,$26,$27
+)
        RETURNING *`,
      [
   invoice_number, customer_id, customer_name, customer_email,
   JSON.stringify(items), invoice_type, currency, invoice_date, payment_mode, reference_no,
-  subtotal, tax_percent, tax_amount, total_amount, discount,
+  subtotal, tax_percent,tax_type,   tax_amount, total_amount, discount,
   grand_total, paid_amount, balance_amount,
   due_date, service_type, state_by, notes, chairman_token,
   data.created_by || null,
