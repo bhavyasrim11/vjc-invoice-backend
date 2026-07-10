@@ -4,7 +4,7 @@ const getAllQuotes = async ({ role, userId, page = 1, limit = 25 } = {}) => {
   let baseQuery = ' FROM quotes';
   const vals = [];
 
-if (role !== 'chairman' && userId) {
+if (role !== 'chairman' && role !== 'mis-executive' && userId) {
   baseQuery += ' WHERE created_by = $1';
   vals.push(userId);
 }

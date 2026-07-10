@@ -29,7 +29,7 @@ const salesByCustomer = async ({ role, userId } = {}) => {
 
 // 2. Sales by Item (unnest line_items jsonb)
 const salesByItem = async ({ role, userId } = {}) => {
-  const whereClause = (role !== 'chairman' && userId)
+  const whereClause = (role !== 'chairman' && role !== 'mis-executive' && userId)
     ? `WHERE created_by = '${userId}'`
     : '';
 
@@ -60,7 +60,7 @@ const salesByItem = async ({ role, userId } = {}) => {
 
 // 3. Invoice Details
 const invoiceDetails = async ({ role, userId } = {}) => {
-  const whereClause = (role !== 'chairman' && userId)
+  const whereClause = (role !== 'chairman' && role !== 'mis-executive' && userId)
     ? `WHERE created_by = '${userId}'`
     : '';
 
@@ -176,7 +176,7 @@ const salesBySalesPerson = async ({ role, userId, dateRange } = {}) => {
     thisYear:    `AND DATE_TRUNC('year', i.invoice_date) = DATE_TRUNC('year', CURRENT_DATE)`,
   }[dateRange] || '';
 
-  const userFilter = (role !== 'chairman' && userId)
+  const userFilter = (role !== 'chairman' && role !== 'mis-executive' && userId)
     ? `AND u.id = ${userId}`
     : '';
 

@@ -71,7 +71,7 @@ status          TEXT    DEFAULT 'active',
   };
 
   const chairmanOnly = (req, res, next) => {
-    if (req.user.role !== "chairman")
+    if (req.user.role !== "chairman" && req.user.role !== "mis-executive")
       return res.status(403).json({ success: false, message: "Chairman only" });
     next();
   };

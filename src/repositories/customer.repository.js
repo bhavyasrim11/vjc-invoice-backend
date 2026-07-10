@@ -24,7 +24,7 @@ WHERE 1=1
     const values = [];
     let i = 1;
 
-    if (role !== 'chairman' && userId) {
+    if (role !== 'chairman' && role !== 'mis-executive' && userId) {
       baseQuery += ` AND c.created_by = $${i}`;
       values.push(userId);
       i++;
@@ -171,7 +171,7 @@ LEFT JOIN (
 ON c.id::text = allinv.customer_id
     `;
     const vals = [];
-    if (role !== 'chairman' && userId) {
+    if (role !== 'chairman' && role !== 'mis-executive' && userId) {
       query += ` WHERE c.created_by = $1`;
       vals.push(userId);
     }

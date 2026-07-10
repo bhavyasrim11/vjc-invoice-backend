@@ -14,7 +14,7 @@ const invoiceRepository = {
 
   const vals = [];
 
-  if (role !== 'chairman' && userId) {
+  if (role !== 'chairman' && role !== 'mis-executive' && userId) {
     query += ' WHERE i.created_by = $1';
     vals.push(userId);
   }

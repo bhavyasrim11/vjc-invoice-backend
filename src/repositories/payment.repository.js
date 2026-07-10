@@ -19,7 +19,7 @@ const generatePaymentNo = async () => {
 const getAllPayments = async ({ role, userId } = {}) => {
   let query = "SELECT * FROM payments";
   const vals = [];
-  if (role !== 'chairman' && userId) {
+  if (role !== 'chairman' && role !== 'mis-executive' && userId) {
     query += " WHERE created_by = $1";
     vals.push(userId);
   }
